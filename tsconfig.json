@@ -7,6 +7,7 @@
 	"src/geometry.ts",
 	"src/renderer.ts",
 	"src/textures.ts",
+	"src/scene.ts",
 	"src/main.ts",
   ]
 }
