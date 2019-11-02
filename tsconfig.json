@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+	"strict": true,
+	"outFile": "build/game.js"
+  },
+  "files": [
+	"src/geometry.ts",
+	"src/canvas.ts"
+  ]
+}
