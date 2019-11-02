@@ -5,7 +5,7 @@ class Figure {
     private texture: TextureName;
     private width: number;
 
-    constructor(x:number, y:number, z:number, width: number) {
+    constructor(x: number, y: number, z: number, width: number) {
         this.x = x;
         this.y = y;
         this.z = z;

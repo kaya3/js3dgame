@@ -1,15 +1,9 @@
+
+
 function main() {
-	function vec(x: number, y: number, z: number): Vector3 {
-		return new Vector3(x, y, z);
-	}
 
 	// Map the given input data into polygons and vectors
-	const environment: Polygon3[] = SCENE_DATA.faces.map(faceJson => {
-		const vecArray: Vector3[] = faceJson.coords.map(coord => { return new Vector3(coord.x, coord.y, coord.z);});
-		const texture = faceJson.texture;
-		console.info('faceJson', faceJson);
-		return new Polygon3(vecArray, texture);
-	});
+	const environment: Polygon3[] = Util.convertInputJsonToPolygonArray(SCENE_DATA);
 
 	let figure : Figure = new Figure(4, 5, 0.1, 1);
 	const figures: Polygon3[] = [figure.getPolygon()];
@@ -19,7 +13,7 @@ function main() {
 	scenePolygons.push(...environment);
 	scenePolygons.push(...figures);
 
-	// insert all polygons into the scene and project to 2d
+	// Insert all polygons into the scene and project to 2d
 	const scene: Scene2 = new Scene3(scenePolygons).project2d();
 
 
@@ -31,7 +25,7 @@ function main() {
 	}
 	window.addEventListener('resize', resizeCanvas);
 	resizeCanvas();
-	
+
 	const keys = Object.create(null);
 	window.addEventListener('keydown', function(e) {
 		keys[e.keyCode] = true;
@@ -39,18 +33,18 @@ function main() {
 	window.addEventListener('keyup', function(e) {
 		keys[e.keyCode] = false;
 	});
-	
+
 	loadTextures(function(imgs) {
 		const game = new Game(scene);
 		const renderer = new Renderer(canvas, imgs);
-		
+
 		var lastTime: DOMHighResTimeStamp|undefined;
 		function tick(time?: DOMHighResTimeStamp) {
 			if(time && lastTime) {
 				game.tick(time - lastTime, keys);
 			}
 			lastTime = time;
-			
+
 			renderer.draw(game.scene, game.camera);
 			window.requestAnimationFrame(tick);
 		}

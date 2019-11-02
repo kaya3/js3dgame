@@ -217,23 +217,15 @@ function loadTextures(callback) {
     }
 }
 function main() {
-    function vec(x, y, z) {
-        return new Vector3(x, y, z);
-    }
     // Map the given input data into polygons and vectors
-    var environment = SCENE_DATA.faces.map(function (faceJson) {
-        var vecArray = faceJson.coords.map(function (coord) { return new Vector3(coord.x, coord.y, coord.z); });
-        var texture = faceJson.texture;
-        console.info('faceJson', faceJson);
-        return new Polygon3(vecArray, texture);
-    });
+    var environment = Util.convertInputJsonToPolygonArray(SCENE_DATA);
     var figure = new Figure(4, 5, 0.1, 1);
     var figures = [figure.getPolygon()];
     // Combine all the polygons into a single collection
     var scenePolygons = [];
     scenePolygons.push.apply(scenePolygons, environment);
     scenePolygons.push.apply(scenePolygons, figures);
-    // insert all polygons into the scene and project to 2d
+    // Insert all polygons into the scene and project to 2d
     var scene = new Scene3(scenePolygons).project2d();
     // Add into the HTML DOM and react to user input/activity
     var canvas = document.getElementById('canvas');
@@ -317,6 +309,15 @@ var Util = /** @class */ (function () {
             return max;
         }
         return val;
+    };
+    Util.convertInputJsonToPolygonArray = function (sceneData) {
+        return sceneData.faces.map(function (faceJson) {
+            var vecArray = faceJson.coords.map(function (coord) {
+                return new Vector3(coord.x, coord.y, coord.z);
+            });
+            var texture = faceJson.texture;
+            return new Polygon3(vecArray, texture);
+        });
     };
     return Util;
 }());
