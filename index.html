@@ -37,10 +37,10 @@ function moveCamera(event) {
             game.moveCamera(+stepSize, 0);
             break;
         case "ArrowUp":
-            game.moveCamera(0, +stepSize);
+            game.moveCamera(0, -stepSize);
             break;
         case "ArrowDown":
-            game.moveCamera(0, -stepSize);
+            game.moveCamera(0, +stepSize);
             break;
     }
 }
