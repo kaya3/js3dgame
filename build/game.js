@@ -1,5 +1,5 @@
 "use strict";
-var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 6;
+var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 50;
 var Vector3 = /** @class */ (function () {
     function Vector3(x, y, z) {
         this.x = x;
@@ -142,7 +142,7 @@ var Renderer = /** @class */ (function () {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.strokeStyle = 'black';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         for (var k in textureImgs) {
             if (Object.prototype.hasOwnProperty.call(textureImgs, k)) {
                 this.textures[k] = ctx.createPattern(textureImgs[k], 'repeat');
@@ -263,12 +263,12 @@ function main() {
         return new Vector3(x, y, z);
     }
     var scene = new Scene3([
-        new Polygon3([vec(0, 0, 0), vec(0, 5, 0), vec(10, 5, 0), vec(10, 0, 0)], 'floor'),
-        new Polygon3([vec(0, 5, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 5, 0)], 'floor'),
-        new Polygon3([vec(10, 0, 0), vec(10, 0, 2), vec(10, 10, 2), vec(10, 10, 1), vec(10, 5, 0)], 'wall'),
-        new Polygon3([vec(10, 0, 0), vec(0, 0, 0), vec(0, 0, 2), vec(10, 0, 2)], 'wall'),
-        new Polygon3([vec(0, 10, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 10, 0)], 'wall'),
-        new Polygon3([vec(0, 4, 0), vec(0, 10, 1), vec(0, 10, 0)], 'wall'),
+        new Polygon3([vec(0, 0, 0), vec(0, 3, 0), vec(5, 3, 0), vec(5, 0, 0)], 'floor'),
+        new Polygon3([vec(0, 3, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 3, 0)], 'floor'),
+        new Polygon3([vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0)], 'wall'),
+        new Polygon3([vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1)], 'wall'),
+        new Polygon3([vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0)], 'wall'),
+        new Polygon3([vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0)], 'wall'),
     ]).project2d();
     var canvas = document.getElementById('canvas');
     function resizeCanvas() {

@@ -12,7 +12,7 @@ class Renderer {
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
 		ctx.strokeStyle = 'black';
-		ctx.lineWidth = 2;
+		ctx.lineWidth = 1;
 		
 		for(var k in textureImgs) {
 			if(Object.prototype.hasOwnProperty.call(textureImgs, k)) {

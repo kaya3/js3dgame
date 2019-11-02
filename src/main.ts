@@ -22,12 +22,12 @@ function main() {
 	}
 	
 	const scene: Scene2 = new Scene3([
-		new Polygon3([ vec(0, 0, 0), vec(0, 5, 0), vec(10, 5, 0), vec(10, 0, 0) ], 'floor'),
-		new Polygon3([ vec(0, 5, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 5, 0) ], 'floor'),
-		new Polygon3([ vec(10, 0, 0), vec(10, 0, 2), vec(10, 10, 2), vec(10, 10, 1), vec(10, 5, 0) ], 'wall'),
-		new Polygon3([ vec(10, 0, 0), vec(0, 0, 0), vec(0, 0, 2), vec(10, 0, 2) ], 'wall'),
-		new Polygon3([ vec(0, 10, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 10, 0) ], 'wall'),
-		new Polygon3([ vec(0, 4, 0), vec(0, 10, 1), vec(0, 10, 0) ], 'wall'),
+		new Polygon3([ vec(0, 0, 0), vec(0, 3, 0), vec(5, 3, 0), vec(5, 0, 0) ], 'floor'),
+		new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 3, 0) ], 'floor'),
+		new Polygon3([ vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0) ], 'wall'),
+		new Polygon3([ vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1) ], 'wall'),
+		new Polygon3([ vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0) ], 'wall'),
+		new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0) ], 'wall'),
 	]).project2d();
 	
 	const canvas = document.getElementById('canvas') as HTMLCanvasElement;

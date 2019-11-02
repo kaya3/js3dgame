@@ -1,4 +1,4 @@
-const sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 6;
+const sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 50;
 
 class Vector3 {
 	public static readonly ZERO = new Vector3(0, 0, 0);
