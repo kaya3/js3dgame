@@ -53,10 +53,20 @@ function main(canvas: HTMLCanvasElement) {
 	
 	var game = new Renderer(canvas);
 	var cameraPos = new Vector2(-100, -400);
-	
+
 	function tick() {
 		game.draw(scene, cameraPos);
 		window.requestAnimationFrame(tick);
 	}
 	tick();
+
+	function moveCamera(x: number, y: number) {
+		cameraPos = cameraPos.add(new Vector2(x,y));
+	}
+
+	return {
+		game: game,
+		cameraPos: cameraPos,
+		moveCamera:moveCamera
+	};
 }

@@ -1,5 +1,5 @@
 "use strict";
-var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 32;
+var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 6;
 var Vector3 = /** @class */ (function () {
     function Vector3(x, y, z) {
         this.x = x;
@@ -164,4 +164,12 @@ function main(canvas) {
         window.requestAnimationFrame(tick);
     }
     tick();
+    function moveCamera(x, y) {
+        cameraPos = cameraPos.add(new Vector2(x, y));
+    }
+    return {
+        game: game,
+        cameraPos: cameraPos,
+        moveCamera: moveCamera
+    };
 }

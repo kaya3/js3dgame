@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="utf-8"/>
 <script src="build/game.js"></script>
 <style type="text/css">
 #canvas {
@@ -12,15 +13,39 @@
 <body>
 <canvas id="canvas"></canvas>
 <script type="text/javascript">
-var canvas = document.getElementById('canvas');
-function resizeCanvas() {
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-	
-}
+let canvas = document.getElementById('canvas');
+let game = main(canvas);
+
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('keydown', moveCamera);
+
 resizeCanvas();
-main(canvas);
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function moveCamera(event) {
+    const stepSize = 5;
+    const key = event.key;
+    switch (key) {
+        case "ArrowLeft":
+            game.moveCamera(-stepSize, 0);
+            break;
+        case "ArrowRight":
+            game.moveCamera(+stepSize, 0);
+            break;
+        case "ArrowUp":
+            game.moveCamera(0, +stepSize);
+            break;
+        case "ArrowDown":
+            game.moveCamera(0, -stepSize);
+            break;
+    }
+}
+
+
 </script>
 </body>
 </html>
