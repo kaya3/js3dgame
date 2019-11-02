@@ -45,11 +45,7 @@ function main(canvas: HTMLCanvasElement) {
 		return new Vector3(x, y, z);
 	}
 	
-	var scene: Scene2 = new Scene3([
-		new Polygon3([ vec(0, 0, 0), vec(0, 10, 0), vec(10, 10, 0), vec(10, 0, 0) ]),
-		new Polygon3([ vec(10, 0, 0), vec(10, 0, 2), vec(10, 10, 2), vec(10, 10, 0) ]),
-		new Polygon3([ vec(0, 0, 0), vec(0, 0, 2), vec(10, 0, 2), vec(10, 0, 0) ]),
-	]).project2d();
+	var scene: Scene2 = new Scene3([]).project2d();
 	
 	var game = new Renderer(canvas);
 	var cameraPos = new Vector2(-100, -400);
@@ -64,9 +60,14 @@ function main(canvas: HTMLCanvasElement) {
 		cameraPos = cameraPos.add(new Vector2(x,y));
 	}
 
+	function drawScene(polys:Array<Polygon3> ) {
+		scene = new Scene3(polys).project2d();
+	}
+
 	return {
 		game: game,
 		cameraPos: cameraPos,
-		moveCamera:moveCamera
+		moveCamera:moveCamera,
+		drawScene: drawScene
 	};
 }
