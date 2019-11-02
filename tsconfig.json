@@ -5,6 +5,7 @@
   },
   "files": [
 	"src/util.ts",
+	"src/game.ts",
 	"src/geometry.ts",
 	"src/renderer.ts",
 	"src/textures.ts",

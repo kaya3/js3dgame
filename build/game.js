@@ -216,42 +216,6 @@ function loadTextures(callback) {
         body.appendChild(imgs[k]);
     }
 }
-var CAMERA_SPEED = 0.25;
-var CAMERA_ZOOM_SPEED = 0.001;
-var MAX_ZOOM = 10;
-var MIN_ZOOM = 1;
-var DEFAULT_X = 400;
-var DEFAULT_Y = 100;
-var DEFAULT_SCALE = 1;
-var Game = /** @class */ (function () {
-    function Game(scene) {
-        this.scene = scene;
-        this.camera = { x: DEFAULT_X, y: DEFAULT_Y, scale: DEFAULT_SCALE };
-    }
-    Game.prototype.tick = function (dt, keys) {
-        var dc = dt * CAMERA_SPEED;
-        var dz = dt * CAMERA_ZOOM_SPEED;
-        if (keys[37]) {
-            this.camera.x -= dc;
-        } // left
-        if (keys[38]) {
-            this.camera.y -= dc;
-        } // up
-        if (keys[39]) {
-            this.camera.x += dc;
-        } // right
-        if (keys[40]) {
-            this.camera.y += dc;
-        } // down
-        if (keys[33]) {
-            this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM);
-        } // page up/zoom in
-        if (keys[34]) {
-            this.camera.scale = Util.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM);
-        } // page down/zoom out
-    };
-    return Game;
-}());
 function main() {
     function vec(x, y, z) {
         return new Vector3(x, y, z);
@@ -355,4 +319,40 @@ var Util = /** @class */ (function () {
         return val;
     };
     return Util;
+}());
+var CAMERA_SPEED = 0.25;
+var CAMERA_ZOOM_SPEED = 0.001;
+var MAX_ZOOM = 10;
+var MIN_ZOOM = 1;
+var DEFAULT_X = 400;
+var DEFAULT_Y = 100;
+var DEFAULT_SCALE = 1;
+var Game = /** @class */ (function () {
+    function Game(scene) {
+        this.scene = scene;
+        this.camera = { x: DEFAULT_X, y: DEFAULT_Y, scale: DEFAULT_SCALE };
+    }
+    Game.prototype.tick = function (dt, keys) {
+        var dc = dt * CAMERA_SPEED;
+        var dz = dt * CAMERA_ZOOM_SPEED;
+        if (keys[37]) {
+            this.camera.x -= dc;
+        } // left
+        if (keys[38]) {
+            this.camera.y -= dc;
+        } // up
+        if (keys[39]) {
+            this.camera.x += dc;
+        } // right
+        if (keys[40]) {
+            this.camera.y += dc;
+        } // down
+        if (keys[33]) {
+            this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM);
+        } // page up/zoom in
+        if (keys[34]) {
+            this.camera.scale = Util.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM);
+        } // page down/zoom out
+    };
+    return Game;
 }());
