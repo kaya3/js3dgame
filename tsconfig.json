@@ -4,9 +4,11 @@
 	"outFile": "build/game.js"
   },
   "files": [
+	"src/util.ts",
 	"src/geometry.ts",
 	"src/renderer.ts",
 	"src/textures.ts",
+    "src/figure.ts",
     "src/scene-data.ts",
 	"src/main.ts"
   ]

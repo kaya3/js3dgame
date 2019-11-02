@@ -1,6 +1,8 @@
+// NOTE: A 404 error on any texture will cause page to fail
 const TEXTURES = {
 	'wall': 'textures/wall-bricks.jpg',
 	'floor': 'textures/floor-tiles.jpg',
+	'stick-figure': 'textures/figure.png',
 };
 const TEXTURE_SCALE = 0.005;
 type TextureName = keyof typeof TEXTURES;

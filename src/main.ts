@@ -2,18 +2,15 @@ const CAMERA_SPEED = 0.25;
 const CAMERA_ZOOM_SPEED = 0.001;
 const MAX_ZOOM = 10;
 const MIN_ZOOM = 1;
+const DEFAULT_X = 400;
+const DEFAULT_Y = 100;
+const DEFAULT_SCALE = 1;
 
 class Game {
 	public readonly camera: Camera;
 	
 	public constructor(public scene: Scene2) {
-		this.camera = { x: 0, y: 0, scale: 1 };
-	}
-
-	private limitNumberRange(val:number, min:number, max:number) {
-		if(val < min) { return min; }
-		if(val > max) { return max; }
-		return val;
+		this.camera = { x: DEFAULT_X, y: DEFAULT_Y, scale: DEFAULT_SCALE };
 	}
 
 	public tick(dt: number, keys: { [k: number]: boolean }): void {
@@ -23,8 +20,8 @@ class Game {
 		if(keys[38]) { this.camera.y -= dc; } // up
 		if(keys[39]) { this.camera.x += dc; } // right
 		if(keys[40]) { this.camera.y += dc; } // down
-		if(keys[33]) { this.camera.scale = this.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM); } // page up/zoom in
-		if(keys[34]) { this.camera.scale = this.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM); } // page down/zoom out
+		if(keys[33]) { this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM); } // page up/zoom in
+		if(keys[34]) { this.camera.scale = Util.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM); } // page down/zoom out
 	}
 }
 
@@ -33,17 +30,27 @@ function main() {
 		return new Vector3(x, y, z);
 	}
 
-
-	const polys = SCENE_DATA.faces.map(faceJson => {
+	// Map the given input data into polygons and vectors
+	const environment: Polygon3[] = SCENE_DATA.faces.map(faceJson => {
 		const vecArray: Vector3[] = faceJson.coords.map(coord => { return new Vector3(coord.x, coord.y, coord.z);});
 		const texture = faceJson.texture;
 		console.info('faceJson', faceJson);
 		return new Polygon3(vecArray, texture);
 	});
-	const scene: Scene2 = new Scene3(polys).project2d();
+
+	let figure : Figure = new Figure(4, 5, 0.1, 1);
+	const figures: Polygon3[] = [figure.getPolygon()];
+
+	// Combine all the polygons into a single collection
+	let scenePolygons: Polygon3[] = [];
+	scenePolygons.push(...environment);
+	scenePolygons.push(...figures);
+
+	// insert all polygons into the scene and project to 2d
+	const scene: Scene2 = new Scene3(scenePolygons).project2d();
 
 
-	
+	// Add into the HTML DOM and react to user input/activity
 	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 	function resizeCanvas() {
 		canvas.width = window.innerWidth;

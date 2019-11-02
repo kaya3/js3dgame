@@ -187,9 +187,11 @@ var Renderer = /** @class */ (function () {
     };
     return Renderer;
 }());
+// NOTE: A 404 error on any texture will cause page to fail
 var TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
+    'stick-figure': 'textures/figure.png',
 };
 var TEXTURE_SCALE = 0.005;
 function loadTextures(callback) {
@@ -218,20 +220,14 @@ var CAMERA_SPEED = 0.25;
 var CAMERA_ZOOM_SPEED = 0.001;
 var MAX_ZOOM = 10;
 var MIN_ZOOM = 1;
+var DEFAULT_X = 400;
+var DEFAULT_Y = 100;
+var DEFAULT_SCALE = 1;
 var Game = /** @class */ (function () {
     function Game(scene) {
         this.scene = scene;
-        this.camera = { x: 0, y: 0, scale: 1 };
+        this.camera = { x: DEFAULT_X, y: DEFAULT_Y, scale: DEFAULT_SCALE };
     }
-    Game.prototype.limitNumberRange = function (val, min, max) {
-        if (val < min) {
-            return min;
-        }
-        if (val > max) {
-            return max;
-        }
-        return val;
-    };
     Game.prototype.tick = function (dt, keys) {
         var dc = dt * CAMERA_SPEED;
         var dz = dt * CAMERA_ZOOM_SPEED;
@@ -248,10 +244,10 @@ var Game = /** @class */ (function () {
             this.camera.y += dc;
         } // down
         if (keys[33]) {
-            this.camera.scale = this.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM);
+            this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM);
         } // page up/zoom in
         if (keys[34]) {
-            this.camera.scale = this.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM);
+            this.camera.scale = Util.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM);
         } // page down/zoom out
     };
     return Game;
@@ -260,13 +256,22 @@ function main() {
     function vec(x, y, z) {
         return new Vector3(x, y, z);
     }
-    var polys = SCENE_DATA.faces.map(function (faceJson) {
+    // Map the given input data into polygons and vectors
+    var environment = SCENE_DATA.faces.map(function (faceJson) {
         var vecArray = faceJson.coords.map(function (coord) { return new Vector3(coord.x, coord.y, coord.z); });
         var texture = faceJson.texture;
         console.info('faceJson', faceJson);
         return new Polygon3(vecArray, texture);
     });
-    var scene = new Scene3(polys).project2d();
+    var figure = new Figure(4, 5, 0.1, 1);
+    var figures = [figure.getPolygon()];
+    // Combine all the polygons into a single collection
+    var scenePolygons = [];
+    scenePolygons.push.apply(scenePolygons, environment);
+    scenePolygons.push.apply(scenePolygons, figures);
+    // insert all polygons into the scene and project to 2d
+    var scene = new Scene3(scenePolygons).project2d();
+    // Add into the HTML DOM and react to user input/activity
     var canvas = document.getElementById('canvas');
     function resizeCanvas() {
         canvas.width = window.innerWidth;
@@ -317,3 +322,37 @@ var SCENE_DATA = {
         { label: "H", texture: "wall", coords: [{ x: 2, y: 10, z: 0 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 15, z: 1 }, { x: 2, y: 15, z: 0 }] },
     ]
 };
+var Figure = /** @class */ (function () {
+    function Figure(x, y, z, width) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.width = width;
+        this.texture = "stick-figure";
+    }
+    Figure.prototype.getPolygon = function () {
+        var halfWidth = this.width / 2;
+        var vecArray = [
+            new Vector3(this.x - halfWidth, this.y, this.z),
+            new Vector3(this.x - halfWidth, this.y, this.z + this.width),
+            new Vector3(this.x + halfWidth, this.y, this.z + this.width),
+            new Vector3(this.x + halfWidth, this.y, this.z),
+        ];
+        return new Polygon3(vecArray, this.texture);
+    };
+    return Figure;
+}());
+var Util = /** @class */ (function () {
+    function Util() {
+    }
+    Util.limitNumberRange = function (val, min, max) {
+        if (val < min) {
+            return min;
+        }
+        if (val > max) {
+            return max;
+        }
+        return val;
+    };
+    return Util;
+}());
