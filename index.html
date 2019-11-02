@@ -5,22 +5,12 @@
 <style type="text/css">
 #canvas {
 	position: fixed;
-	top: 0; left: 0; /* width: 100%; height: 100%; */
+	top: 0; left: 0;
 }
 </style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
-<script type="text/javascript">
-var canvas = document.getElementById('canvas');
-function resizeCanvas() {
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-	
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-main(canvas);
-</script>
+<script type="text/javascript">main();</script>
 </body>
 </html>

@@ -1,7 +1,10 @@
 const sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 32;
 
 class Vector3 {
-	public static CAMERA_NORMAL: Vector3;
+	public static readonly ZERO = new Vector3(0, 0, 0);
+	public static readonly X_UNIT = new Vector3(1, 0, 0);
+	public static readonly Y_UNIT = new Vector3(0, 1, 0);
+	public static readonly Z_UNIT = new Vector3(0, 0, 1);
 	
 	public constructor(public readonly x: number, public readonly y: number, public readonly z: number) {}
 	
@@ -29,7 +32,7 @@ class Vector3 {
 	public cross(other: Vector3): Vector3 {
 		return new Vector3(
 			this.y * other.z - this.z * other.y,
-			this.x * other.z - this.z * other.x,
+			this.z * other.x - this.x * other.z,
 			this.x * other.y - this.y * other.x
 		);
 	}
@@ -72,27 +75,43 @@ class Vector2 {
 
 class Polygon3 {
 	public readonly normal: Vector3;
-	public constructor(public readonly points: ReadonlyArray<Vector3>) {
+	public readonly cameraOrder: number;
+	public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: TextureName) {
 		this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
-	}
-	public cameraOrder(): number {
+		
 		var points = this.points;
 		var m = points[0].cameraOrder();
 		for(var i = 1; i < points.length; ++i) {
 			m = Math.min(points[i].cameraOrder(), m);
 		}
-		return m;
+		this.cameraOrder = m;
 	}
 	public project2d(): Polygon2 {
 		return new Polygon2(
 			this.points.map(v => v.project2d()),
-			this.cameraOrder()
+			this
 		);
 	}
 }
 
 class Polygon2 {
-	public constructor(public readonly points: ReadonlyArray<Vector2>, public readonly order: number) {}
+	public readonly textureTransform: TextureTransform;
+	public constructor(public readonly points: ReadonlyArray<Vector2>, public readonly as3d: Polygon3) {
+		var u3 = as3d.normal.cross(Vector3.Z_UNIT);
+		if(u3.equals(Vector3.ZERO)) { u3 = Vector3.X_UNIT; } else { u3 = u3.unit(); }
+		const u = u3.project2d();
+		const v = as3d.normal.cross(u3).unit().project2d();
+		const p = points[0];
+		
+		this.textureTransform = {
+			a: u.x * TEXTURE_SCALE,
+			b: u.y * TEXTURE_SCALE,
+			c: v.x * TEXTURE_SCALE,
+			d: v.y * TEXTURE_SCALE,
+			x: p.x,
+			y: p.y
+		};
+	}
 }
 
 class Scene3 {
@@ -108,5 +127,7 @@ class Scene3 {
 }
 
 class Scene2 {
-	public constructor(public readonly polygons: Array<Polygon2>) {}
+	public constructor(public readonly polygons: Array<Polygon2>) {
+		polygons.sort((p,q) => p.as3d.cameraOrder - q.as3d.cameraOrder);
+	}
 }

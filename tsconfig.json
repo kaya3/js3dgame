@@ -5,6 +5,8 @@
   },
   "files": [
 	"src/geometry.ts",
-	"src/canvas.ts"
+	"src/renderer.ts",
+	"src/textures.ts",
+	"src/main.ts",
   ]
 }

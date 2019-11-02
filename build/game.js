@@ -28,7 +28,7 @@ var Vector3 = /** @class */ (function () {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     };
     Vector3.prototype.cross = function (other) {
-        return new Vector3(this.y * other.z - this.z * other.y, this.x * other.z - this.z * other.x, this.x * other.y - this.y * other.x);
+        return new Vector3(this.y * other.z - this.z * other.y, this.z * other.x - this.x * other.z, this.x * other.y - this.y * other.x);
     };
     Vector3.prototype.project2d = function () {
         return new Vector2(2 * CAMERA_SCALE * (this.x + this.y), CAMERA_SCALE * (this.y - this.x - sqrt6 * this.z));
@@ -42,6 +42,10 @@ var Vector3 = /** @class */ (function () {
             && Math.abs(this.y - other.y) < eps
             && Math.abs(this.z - other.z) < eps;
     };
+    Vector3.ZERO = new Vector3(0, 0, 0);
+    Vector3.X_UNIT = new Vector3(1, 0, 0);
+    Vector3.Y_UNIT = new Vector3(0, 1, 0);
+    Vector3.Z_UNIT = new Vector3(0, 0, 1);
     return Vector3;
 }());
 var Vector2 = /** @class */ (function () {
@@ -69,27 +73,44 @@ var Vector2 = /** @class */ (function () {
     return Vector2;
 }());
 var Polygon3 = /** @class */ (function () {
-    function Polygon3(points) {
+    function Polygon3(points, texture) {
         this.points = points;
+        this.texture = texture;
         this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
-    }
-    Polygon3.prototype.cameraOrder = function () {
         var points = this.points;
         var m = points[0].cameraOrder();
         for (var i = 1; i < points.length; ++i) {
             m = Math.min(points[i].cameraOrder(), m);
         }
-        return m;
-    };
+        this.cameraOrder = m;
+    }
     Polygon3.prototype.project2d = function () {
-        return new Polygon2(this.points.map(function (v) { return v.project2d(); }), this.cameraOrder());
+        return new Polygon2(this.points.map(function (v) { return v.project2d(); }), this);
     };
     return Polygon3;
 }());
 var Polygon2 = /** @class */ (function () {
-    function Polygon2(points, order) {
+    function Polygon2(points, as3d) {
         this.points = points;
-        this.order = order;
+        this.as3d = as3d;
+        var u3 = as3d.normal.cross(Vector3.Z_UNIT);
+        if (u3.equals(Vector3.ZERO)) {
+            u3 = Vector3.X_UNIT;
+        }
+        else {
+            u3 = u3.unit();
+        }
+        var u = u3.project2d();
+        var v = as3d.normal.cross(u3).unit().project2d();
+        var p = points[0];
+        this.textureTransform = {
+            a: u.x * TEXTURE_SCALE,
+            b: u.y * TEXTURE_SCALE,
+            c: v.x * TEXTURE_SCALE,
+            d: v.y * TEXTURE_SCALE,
+            x: p.x,
+            y: p.y
+        };
     }
     return Polygon2;
 }());
@@ -109,59 +130,151 @@ var Scene3 = /** @class */ (function () {
 var Scene2 = /** @class */ (function () {
     function Scene2(polygons) {
         this.polygons = polygons;
+        polygons.sort(function (p, q) { return p.as3d.cameraOrder - q.as3d.cameraOrder; });
     }
     return Scene2;
 }());
 var Renderer = /** @class */ (function () {
-    function Renderer(canvas) {
+    function Renderer(canvas, textureImgs) {
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
-    }
-    Renderer.prototype.draw = function (scene, cameraPos) {
-        var ctx = this.ctx;
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.fillStyle = '#0000D0';
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.textures = Object.create(null);
+        var ctx = this.ctx = canvas.getContext('2d');
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 2;
-        ctx.fillStyle = '#00D000';
+        for (var k in textureImgs) {
+            if (Object.prototype.hasOwnProperty.call(textureImgs, k)) {
+                this.textures[k] = ctx.createPattern(textureImgs[k], 'repeat');
+            }
+        }
+    }
+    Renderer.prototype.draw = function (scene, camera) {
+        var ctx = this.ctx;
+        var tx = this.textures;
+        var width = this.canvas.width;
+        var height = this.canvas.height;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = '#0000D0';
+        ctx.fillRect(0, 0, width, height);
+        var cx = (width / 2) - camera.x;
+        var cy = (height / 2) - camera.y;
+        var cs = camera.scale;
         var polygons = scene.polygons;
         for (var i = 0; i < polygons.length; ++i) {
-            this.drawPolygon(polygons[i], cameraPos);
+            var polygon = polygons[i];
+            this.drawPolygon(polygons[i], cx, cy, cs);
         }
     };
-    Renderer.prototype.drawPolygon = function (polygon, cameraPos) {
+    Renderer.prototype.drawPolygon = function (polygon, cx, cy, cs) {
         var ctx = this.ctx;
         var points = polygon.points;
+        ctx.setTransform(cs, 0, 0, cs, cx, cy);
         ctx.beginPath();
-        var v = points[0].subtract(cameraPos);
+        var v = points[0];
         ctx.moveTo(v.x, v.y);
         for (var i = 1; i < points.length; ++i) {
-            v = points[i].subtract(cameraPos);
+            v = points[i];
             ctx.lineTo(v.x, v.y);
         }
         ctx.closePath();
+        var tf = polygon.textureTransform;
+        ctx.setTransform(cs * tf.a, cs * tf.b, cs * tf.c, cs * tf.d, tf.x + cx, tf.y + cy);
+        ctx.fillStyle = this.textures[polygon.as3d.texture];
         ctx.fill();
+        ctx.setTransform(cs, 0, 0, cs, cx, cy);
         ctx.stroke();
     };
     return Renderer;
 }());
-function main(canvas) {
+var TEXTURES = {
+    'wall': 'textures/wall-bricks.jpg',
+    'floor': 'textures/floor-tiles.jpg'
+};
+var TEXTURE_SCALE = 0.005;
+function loadTextures(callback) {
+    var imgs = {};
+    var count = 0;
+    for (var k in TEXTURES) {
+        if (Object.hasOwnProperty.call(TEXTURES, k)) {
+            var img = new Image();
+            img.src = TEXTURES[k];
+            img.style.display = 'hidden';
+            ++count;
+            img.onload = function () {
+                if (--count == 0) {
+                    callback(imgs);
+                }
+            };
+            imgs[k] = img;
+        }
+    }
+    for (var k in imgs) {
+        var body = document.getElementsByTagName('body')[0];
+        body.appendChild(imgs[k]);
+    }
+}
+var CAMERA_SPEED = 0.25;
+var Game = /** @class */ (function () {
+    function Game(scene) {
+        this.scene = scene;
+        this.camera = { x: 0, y: 0, scale: 1 };
+    }
+    Game.prototype.tick = function (dt, keys) {
+        var dc = dt * CAMERA_SPEED;
+        if (keys[37]) {
+            this.camera.x -= dc;
+        } // left
+        if (keys[38]) {
+            this.camera.y -= dc;
+        } // up
+        if (keys[39]) {
+            this.camera.x += dc;
+        } // right
+        if (keys[40]) {
+            this.camera.y += dc;
+        } // down
+    };
+    return Game;
+}());
+function main() {
     function vec(x, y, z) {
         return new Vector3(x, y, z);
     }
     var scene = new Scene3([
-        new Polygon3([vec(0, 0, 0), vec(0, 10, 0), vec(10, 10, 0), vec(10, 0, 0)]),
-        new Polygon3([vec(10, 0, 0), vec(10, 0, 2), vec(10, 10, 2), vec(10, 10, 0)]),
-        new Polygon3([vec(0, 0, 0), vec(0, 0, 2), vec(10, 0, 2), vec(10, 0, 0)]),
+        new Polygon3([vec(0, 0, 0), vec(0, 5, 0), vec(10, 5, 0), vec(10, 0, 0)], 'floor'),
+        new Polygon3([vec(0, 5, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 5, 0)], 'floor'),
+        new Polygon3([vec(10, 0, 0), vec(10, 0, 2), vec(10, 10, 2), vec(10, 10, 1), vec(10, 5, 0)], 'wall'),
+        new Polygon3([vec(10, 0, 0), vec(0, 0, 0), vec(0, 0, 2), vec(10, 0, 2)], 'wall'),
+        new Polygon3([vec(0, 10, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 10, 0)], 'wall'),
+        new Polygon3([vec(0, 4, 0), vec(0, 10, 1), vec(0, 10, 0)], 'wall'),
     ]).project2d();
-    var game = new Renderer(canvas);
-    var cameraPos = new Vector2(-100, -400);
-    function tick() {
-        game.draw(scene, cameraPos);
-        window.requestAnimationFrame(tick);
+    var canvas = document.getElementById('canvas');
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
-    tick();
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    var keys = Object.create(null);
+    window.addEventListener('keydown', function (e) {
+        keys[e.keyCode] = true;
+    });
+    window.addEventListener('keyup', function (e) {
+        keys[e.keyCode] = false;
+    });
+    loadTextures(function (imgs) {
+        var game = new Game(scene);
+        var renderer = new Renderer(canvas, imgs);
+        var lastTime;
+        function tick(time) {
+            if (time && lastTime) {
+                game.tick(time - lastTime, keys);
+            }
+            lastTime = time;
+            renderer.draw(game.scene, game.camera);
+            window.requestAnimationFrame(tick);
+        }
+        tick();
+    });
 }
