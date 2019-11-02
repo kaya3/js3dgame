@@ -11,7 +11,7 @@ class Renderer {
 		const ctx = this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
-		ctx.strokeStyle = 'black';
+		ctx.strokeStyle = 'gray';
 		ctx.lineWidth = 1;
 		
 		for(var k in textureImgs) {
