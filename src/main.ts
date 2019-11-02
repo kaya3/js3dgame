@@ -20,15 +20,17 @@ function main() {
 	function vec(x: number, y: number, z: number): Vector3 {
 		return new Vector3(x, y, z);
 	}
-	
-	const scene: Scene2 = new Scene3([
-		new Polygon3([ vec(0, 0, 0), vec(0, 3, 0), vec(5, 3, 0), vec(5, 0, 0) ], 'floor'),
-		new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 3, 0) ], 'floor'),
-		new Polygon3([ vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0) ], 'wall'),
-		new Polygon3([ vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1) ], 'wall'),
-		new Polygon3([ vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0) ], 'wall'),
-		new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0) ], 'wall'),
-	]).project2d();
+
+
+	const polys = SCENE_DATA.faces.map(faceJson => {
+		const vecArray: Vector3[] = faceJson.coords.map(coord => { return new Vector3(coord.x, coord.y, coord.z);});
+		const texture = faceJson.texture;
+		console.info('faceJson', faceJson);
+		return new Polygon3(vecArray, texture);
+	});
+	const scene: Scene2 = new Scene3(polys).project2d();
+
+
 	
 	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 	function resizeCanvas() {

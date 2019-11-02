@@ -1,21 +1,27 @@
-const SCENE_DATA = {
+type SceneDataVector = { x: number, y: number, z: number };
+
+type SceneData = {
+    faces: Array<{ label?: string, texture: TextureName, coords: Array<SceneDataVector> }>
+};
+
+const SCENE_DATA: SceneData = {
     "faces": [
-        { "label": "A", "texture": "wall", "coords": [{"x":0, "y":0, "z":0}, {"x":0, "y":0, "z":7}, {"x":6, "y":0, "z":7}, {"x":6, "y":0, "z":0}]},
-        { "label": "B", "coords": [{"x":6, "y":0, "z":0}, {"x":6, "y":0, "z":7},{"x":6, "y":10, "z":7},{"x":6, "y":10, "z":0}]},
-        { "label": "C", "coords": [{"x":0, "y":10, "z":0}, {"x":0, "y":0, "z":0}, {"x":6, "y":0, "z":0}, {"x":6, "y":10, "z":0}]},
-        { "label": "D", "coords": [{"x":0, "y":10, "z":0}, {"x":0, "y":0, "z":0}, {"x":0, "y":0, "z":7}, {"x":0, "y":10, "z":7}]},
-        { "label": "E", "coords": [{"x":0, "y":10, "z":7}, {"x":0, "y":0, "z":7}, {"x":6, "y":0, "z":7}, {"x":6, "y":10, "z":7}]},
-        { "label": "F", "coords": [{"x":0, "y":10, "z":0}, {"x":0, "y":10, "z":7}, {"x":6, "y":10, "z":7}, {"x":6, "y":10, "z":0}]},
-        { "label": "G", "coords": [{"x":2, "y":17, "z":0}, {"x":2, "y":10, "z":0}, {"x":2, "y":10, "z":7}, {"x":4, "y":15, "z":7}]},
-        { "label": "H", "coords": [{"x":2, "y":17, "z":7}, {"x":2, "y":10, "z":7}, {"x":4, "y":10, "z":7}, {"x":4, "y":15, "z":7}]},
-        { "label": "P", "coords": [{"x":4, "y":15, "z":0}, {"x":4, "y":10, "z":0}, {"x":4, "y":10, "z":7}, {"x":4, "y":15, "z":7}]},
-        { "label": "Q", "coords": [{"x":2, "y":17, "z":0}, {"x":2, "y":10, "z":0}, {"x":4, "y":10, "z":0}, {"x":4, "y":15, "z":0}]},
-        { "label": "I", "coords": [{"x":-4, "y":17, "z":0}, {"x":-4, "y":17, "z":7}, {"x":2, "y":17, "z":7}, {"x":2, "y":17, "z":0}]},
-        { "label": "J", "coords": [{"x":-4, "y":23, "z":0}, {"x":-4, "y":23, "z":7}, {"x":-4, "y":17, "z":7}, {"x":-4, "y":17, "z":0}]},
-        { "label": "K", "coords": [{"x":-4, "y":23, "z":0}, {"x":-4, "y":23, "z":7}, {"x":6, "y":23, "z":7}, {"x":6, "y":23, "z":0}]},
-        { "label": "L", "coords": [{"x":6, "y":15, "z":0}, {"x":6, "y":15, "z":7}, {"x":6, "y":23, "z":7}, {"x":6, "y":23, "z":0}]},
-        { "label": "M", "coords": [{"x":4, "y":15, "z":0}, {"x":4, "y":15, "z":7}, {"x":6, "y":15, "z":7}, {"x":6, "y":15, "z":0}]},
-        { "label": "N", "coords": [{"x":-4, "y":17, "z":0}, {"x":2, "y":17, "z":0}, {"x":2, "y":15, "z":0}, {"x":6, "y":15, "z":0}, {"x":6, "y":23, "z":0}, {"x":-4, "y":23, "z":0}]},
-        { "label": "O", "coords": [{"x":2, "y":10, "z":0}, {"x":4, "y":10, "z":0},{"x":4, "y":15, "z":0},{"x":2, "y":15, "z":0}]}
+        { label: "A", texture: "wall", coords: [{x:0, y:0, z:0}, {x:0, y:0, z:7}, {x:6, y:0, z:7}, {x:6, y:0, z:0}]},
+        { label: "B", texture: "wall", coords: [{x:6, y:0, z:0}, {x:6, y:0, z:7},{x:6, y:10, z:7},{x:6, y:10, z:0}]},
+        { label: "C", texture: "wall", coords: [{x:0, y:10, z:0}, {x:0, y:0, z:0}, {x:6, y:0, z:0}, {x:6, y:10, z:0}]},
+        { label: "D", texture: "floor", coords: [{x:0, y:10, z:0}, {x:0, y:0, z:0}, {x:0, y:0, z:7}, {x:0, y:10, z:7}]},
+        { label: "E", texture: "wall", coords: [{x:0, y:10, z:7}, {x:0, y:0, z:7}, {x:6, y:0, z:7}, {x:6, y:10, z:7}]},
+        { label: "F", texture: "wall", coords: [{x:0, y:10, z:0}, {x:0, y:10, z:7}, {x:6, y:10, z:7}, {x:6, y:10, z:0}]},
+        { label: "G", texture: "wall", coords: [{x:2, y:17, z:0}, {x:2, y:10, z:0}, {x:2, y:10, z:7}, {x:4, y:15, z:7}]},
+        { label: "H", texture: "wall", coords: [{x:2, y:17, z:7}, {x:2, y:10, z:7}, {x:4, y:10, z:7}, {x:4, y:15, z:7}]},
+        { label: "P", texture: "wall", coords: [{x:4, y:15, z:0}, {x:4, y:10, z:0}, {x:4, y:10, z:7}, {x:4, y:15, z:7}]},
+        { label: "Q", texture: "wall", coords: [{x:2, y:17, z:0}, {x:2, y:10, z:0}, {x:4, y:10, z:0}, {x:4, y:15, z:0}]},
+        { label: "I", texture: "wall", coords: [{x:-4, y:17, z:0}, {x:-4, y:17, z:7}, {x:2, y:17, z:7}, {x:2, y:17, z:0}]},
+        { label: "J", texture: "wall", coords: [{x:-4, y:23, z:0}, {x:-4, y:23, z:7}, {x:-4, y:17, z:7}, {x:-4, y:17, z:0}]},
+        { label: "K", texture: "wall", coords: [{x:-4, y:23, z:0}, {x:-4, y:23, z:7}, {x:6, y:23, z:7}, {x:6, y:23, z:0}]},
+        { label: "L", texture: "wall", coords: [{x:6, y:15, z:0}, {x:6, y:15, z:7}, {x:6, y:23, z:7}, {x:6, y:23, z:0}]},
+        { label: "M", texture: "wall", coords: [{x:4, y:15, z:0}, {x:4, y:15, z:7}, {x:6, y:15, z:7}, {x:6, y:15, z:0}]},
+        { label: "N", texture: "floor", coords: [{x:-4, y:17, z:0}, {x:2, y:17, z:0}, {x:2, y:15, z:0}, {x:6, y:15, z:0}, {x:6, y:23, z:0}, {x:-4, y:23, z:0}]},
+        { label: "O", texture: "floor", coords: [{x:2, y:10, z:0}, {x:4, y:10, z:0},{x:4, y:15, z:0},{x:2, y:15, z:0}]}
     ]
 };
