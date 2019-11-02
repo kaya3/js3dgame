@@ -1,5 +1,5 @@
 "use strict";
-var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 50;
+var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 20;
 var Vector3 = /** @class */ (function () {
     function Vector3(x, y, z) {
         this.x = x;
@@ -82,7 +82,7 @@ var Polygon3 = /** @class */ (function () {
         for (var i = 1; i < points.length; ++i) {
             m = Math.min(points[i].cameraOrder(), m);
         }
-        this.cameraOrder = m;
+        this.cameraOrder = -m;
     }
     Polygon3.prototype.project2d = function () {
         return new Polygon2(this.points.map(function (v) { return v.project2d(); }), this);
@@ -215,13 +215,26 @@ function loadTextures(callback) {
     }
 }
 var CAMERA_SPEED = 0.25;
+var CAMERA_ZOOM_SPEED = 0.001;
+var MAX_ZOOM = 10;
+var MIN_ZOOM = 1;
 var Game = /** @class */ (function () {
     function Game(scene) {
         this.scene = scene;
         this.camera = { x: 0, y: 0, scale: 1 };
     }
+    Game.prototype.limitNumberRange = function (val, min, max) {
+        if (val < min) {
+            return min;
+        }
+        if (val > max) {
+            return max;
+        }
+        return val;
+    };
     Game.prototype.tick = function (dt, keys) {
         var dc = dt * CAMERA_SPEED;
+        var dz = dt * CAMERA_ZOOM_SPEED;
         if (keys[37]) {
             this.camera.x -= dc;
         } // left
@@ -234,6 +247,12 @@ var Game = /** @class */ (function () {
         if (keys[40]) {
             this.camera.y += dc;
         } // down
+        if (keys[33]) {
+            this.camera.scale = this.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM);
+        } // page up/zoom in
+        if (keys[34]) {
+            this.camera.scale = this.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM);
+        } // page down/zoom out
     };
     return Game;
 }());
@@ -286,12 +305,12 @@ function main() {
 var SCENE_DATA = {
     "faces": [
         // Room 1
-        // { label: "A", texture: "wall", coords: [{x:0, y:0, z:0}, {x:0, y:0, z:1}, {x:6, y:0, z:1}, {x:6, y:0, z:0}]},
-        // { label: "B", texture: "wall", coords: [{x:6, y:0, z:0}, {x:6, y:0, z:1},{x:6, y:10, z:1},{x:6, y:10, z:0}]},
-        // { label: "C", texture: "floor", coords: [{x:0, y:10, z:0}, {x:0, y:0, z:0}, {x:6, y:0, z:0}, {x:6, y:10, z:0}]},
-        //// { label: "D", texture: "wall", coords: [{x:0, y:10, z:0}, {x:0, y:0, z:0}, {x:0, y:0, z:1}, {x:0, y:10, z:1}]},
-        // { label: "E", texture: "wall", coords: [{x:0, y:10, z:1}, {x:0, y:0, z:1}, {x:6, y:0, z:1}, {x:6, y:10, z:1}]},
-        // { label: "F", texture: "wall", coords: [{x:0, y:10, z:0}, {x:0, y:10, z:1}, {x:6, y:10, z:1}, {x:6, y:10, z:0}]},
+        { label: "C", texture: "floor", coords: [{ x: 0, y: 0, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 10, z: 0 }, { x: 0, y: 10, z: 0 }] },
+        { label: "A", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 6, y: 0, z: 1 }, { x: 6, y: 0, z: 0 }] },
+        { label: "B", texture: "wall", coords: [{ x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 0, z: 1 },] },
+        { label: "D", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: 10, z: 1 }, { x: 0, y: 10, z: 0 }] },
+        { label: "E", texture: "wall", coords: [{ x: 0, y: 10, z: 0 }, { x: 0, y: 10, z: 1 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 10, z: 0 }] },
+        { label: "F", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }] },
         // Corridor
         { label: "O", texture: "floor", coords: [{ x: 2, y: 10, z: 0 }, { x: 4, y: 10, z: 0 }, { x: 4, y: 15, z: 0 }, { x: 2, y: 15, z: 0 }] },
         { label: "G", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 4, y: 15, z: 1 }, { x: 4, y: 15, z: 0 }] },

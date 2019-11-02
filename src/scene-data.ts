@@ -14,15 +14,15 @@ type SceneData = {
 const SCENE_DATA: SceneData = {
     "faces": [
         // Room 1
-        // { label: "A", texture: "wall", coords: [{x:0, y:0, z:0}, {x:0, y:0, z:1}, {x:6, y:0, z:1}, {x:6, y:0, z:0}]},
-        // { label: "B", texture: "wall", coords: [{x:6, y:0, z:0}, {x:6, y:0, z:1},{x:6, y:10, z:1},{x:6, y:10, z:0}]},
-        // { label: "C", texture: "floor", coords: [{x:0, y:10, z:0}, {x:0, y:0, z:0}, {x:6, y:0, z:0}, {x:6, y:10, z:0}]},
-        //// { label: "D", texture: "wall", coords: [{x:0, y:10, z:0}, {x:0, y:0, z:0}, {x:0, y:0, z:1}, {x:0, y:10, z:1}]},
-        // { label: "E", texture: "wall", coords: [{x:0, y:10, z:1}, {x:0, y:0, z:1}, {x:6, y:0, z:1}, {x:6, y:10, z:1}]},
-        // { label: "F", texture: "wall", coords: [{x:0, y:10, z:0}, {x:0, y:10, z:1}, {x:6, y:10, z:1}, {x:6, y:10, z:0}]},
+        { label: "C", texture: "floor", coords: [{x:0, y:0, z:0}, {x:6, y:0, z:0}, {x:6, y:10, z:0}, {x:0, y:10, z:0}]},
+        { label: "A", texture: "wall", coords: [{x:0, y:0, z:0}, {x:0, y:0, z:1}, {x:6, y:0, z:1}, {x:6, y:0, z:0}]},
+        { label: "B", texture: "wall", coords: [{x:6, y:10, z:1},{x:6, y:10, z:0},{x:6, y:0, z:0},{x:6, y:0, z:1}, ]},
+        { label: "D", texture: "wall", coords: [{x:0, y:0, z:0}, {x:0, y:0, z:1}, {x:0, y:10, z:1}, {x:0, y:10, z:0}]},
+        { label: "E", texture: "wall", coords: [{x:0, y:10, z:0}, {x:0, y:10, z:1}, {x:2, y:10, z:1}, {x:2, y:10, z:0}]},
+        { label: "F", texture: "wall", coords: [{x:4, y:10, z:0}, {x:4, y:10, z:1}, {x:6, y:10, z:1}, {x:6, y:10, z:0}]},
 
         // Corridor
-        { label: "O", texture: "floor", coords: [{x:2, y:10, z:0}, {x:4, y:10, z:0},{x:4, y:15, z:0},{x:2, y:15, z:0}]}
+        { label: "O", texture: "floor", coords: [{x:2, y:10, z:0}, {x:4, y:10, z:0},{x:4, y:15, z:0},{x:2, y:15, z:0}]},
         { label: "G", texture: "wall", coords: [{x:4, y:10, z:0}, {x:4, y:10, z:1}, {x:4, y:15, z:1}, {x:4, y:15, z:0}]},
         { label: "H", texture: "wall", coords: [{x:2, y:10, z:0}, {x:2, y:10, z:1}, {x:2, y:15, z:1}, {x:2, y:15, z:0}]},
 

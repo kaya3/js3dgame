@@ -1,4 +1,7 @@
 const CAMERA_SPEED = 0.25;
+const CAMERA_ZOOM_SPEED = 0.001;
+const MAX_ZOOM = 10;
+const MIN_ZOOM = 1;
 
 class Game {
 	public readonly camera: Camera;
@@ -6,13 +9,22 @@ class Game {
 	public constructor(public scene: Scene2) {
 		this.camera = { x: 0, y: 0, scale: 1 };
 	}
-	
+
+	private limitNumberRange(val:number, min:number, max:number) {
+		if(val < min) { return min; }
+		if(val > max) { return max; }
+		return val;
+	}
+
 	public tick(dt: number, keys: { [k: number]: boolean }): void {
 		var dc = dt * CAMERA_SPEED;
+		var dz = dt * CAMERA_ZOOM_SPEED;
 		if(keys[37]) { this.camera.x -= dc; } // left
 		if(keys[38]) { this.camera.y -= dc; } // up
 		if(keys[39]) { this.camera.x += dc; } // right
 		if(keys[40]) { this.camera.y += dc; } // down
+		if(keys[33]) { this.camera.scale = this.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM); } // page up/zoom in
+		if(keys[34]) { this.camera.scale = this.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM); } // page down/zoom out
 	}
 }
 
