@@ -11,12 +11,11 @@
 </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
-<script type="text/javascript">
-let canvas = document.getElementById('canvas');
-let game = main(canvas);
 
-let data ={
+<canvas id="canvas"></canvas>
+
+<script type="text/javascript">
+let data2 ={
     "faces": [
         { "label": "A", "coords": [{"x":0, "y":0, "z":0}, {"x":0, "y":0, "z":7}, {"x":6, "y":0, "z":7}, {"x":6, "y":0, "z":0}]},
         { "label": "B", "coords": [{"x":6, "y":0, "z":0}, {"x":6, "y":0, "z":7},{"x":6, "y":10, "z":7},{"x":6, "y":10, "z":0}]},
@@ -37,24 +36,23 @@ let data ={
         { "label": "O", "coords": [{"x":2, "y":10, "z":0}, {"x":4, "y":10, "z":0},{"x":4, "y":15, "z":0},{"x":2, "y":15, "z":0}]}
     ]
 };
+</script>
 
 
-let polys = data.faces.map(faceJson => {
-    console.info('faceJson.coords', faceJson.coords);
 
-    let vecArray = faceJson.coords.map(coord => { return new Vector3(coord.x, coord.y, coord.z);});
-    console.info('vecArray', vecArray);
+<script type="text/javascript">
+function drawScene(data) {
+    let polys = data.faces.map(faceJson => {
+        console.info('faceJson.coords', faceJson.coords);
 
-    return new Polygon3(vecArray);
-});
+        let vecArray = faceJson.coords.map(coord => { return new Vector3(coord.x, coord.y, coord.z);});
+        console.info('vecArray', vecArray);
 
-game.drawScene(polys);
+        return new Polygon3(vecArray);
+    });
 
-
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('keydown', moveCamera);
-
-resizeCanvas();
+    game.drawScene(polys);
+}
 
 function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -79,8 +77,31 @@ function moveCamera(event) {
             break;
     }
 }
-
-
 </script>
+
+
+<script type="text/javascript">
+    let canvas = document.getElementById('canvas');
+    let game = main(canvas);
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('keydown', moveCamera);
+
+    resizeCanvas();
+
+    drawScene(data2);
+
+    // Does not work when using file:// scheme...
+    //
+    // let dataUri = 'data/data.json';
+    // fetch(dataUri)
+    //     .then(status)
+    //     .then(json)
+    //     .then(drawScene)
+    //     .catch(function (error) {
+    //         console.log('Request failed', error);
+    //     });
+</script>
+
 </body>
 </html>
