@@ -84,7 +84,7 @@ class Polygon3 {
 		for(var i = 1; i < points.length; ++i) {
 			m = Math.min(points[i].cameraOrder(), m);
 		}
-		this.cameraOrder = m;
+		this.cameraOrder = -m;
 	}
 	public project2d(): Polygon2 {
 		return new Polygon2(
