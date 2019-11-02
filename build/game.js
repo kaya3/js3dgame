@@ -214,6 +214,27 @@ function loadTextures(callback) {
         body.appendChild(imgs[k]);
     }
 }
+var SCENE_DATA = {
+    "faces": [
+        { "label": "A", "texture": "wall", "coords": [{ "x": 0, "y": 0, "z": 0 }, { "x": 0, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 0 }] },
+        { "label": "B", "coords": [{ "x": 6, "y": 0, "z": 0 }, { "x": 6, "y": 0, "z": 7 }, { "x": 6, "y": 10, "z": 7 }, { "x": 6, "y": 10, "z": 0 }] },
+        { "label": "C", "coords": [{ "x": 0, "y": 10, "z": 0 }, { "x": 0, "y": 0, "z": 0 }, { "x": 6, "y": 0, "z": 0 }, { "x": 6, "y": 10, "z": 0 }] },
+        { "label": "D", "coords": [{ "x": 0, "y": 10, "z": 0 }, { "x": 0, "y": 0, "z": 0 }, { "x": 0, "y": 0, "z": 7 }, { "x": 0, "y": 10, "z": 7 }] },
+        { "label": "E", "coords": [{ "x": 0, "y": 10, "z": 7 }, { "x": 0, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 7 }, { "x": 6, "y": 10, "z": 7 }] },
+        { "label": "F", "coords": [{ "x": 0, "y": 10, "z": 0 }, { "x": 0, "y": 10, "z": 7 }, { "x": 6, "y": 10, "z": 7 }, { "x": 6, "y": 10, "z": 0 }] },
+        { "label": "G", "coords": [{ "x": 2, "y": 17, "z": 0 }, { "x": 2, "y": 10, "z": 0 }, { "x": 2, "y": 10, "z": 7 }, { "x": 4, "y": 15, "z": 7 }] },
+        { "label": "H", "coords": [{ "x": 2, "y": 17, "z": 7 }, { "x": 2, "y": 10, "z": 7 }, { "x": 4, "y": 10, "z": 7 }, { "x": 4, "y": 15, "z": 7 }] },
+        { "label": "P", "coords": [{ "x": 4, "y": 15, "z": 0 }, { "x": 4, "y": 10, "z": 0 }, { "x": 4, "y": 10, "z": 7 }, { "x": 4, "y": 15, "z": 7 }] },
+        { "label": "Q", "coords": [{ "x": 2, "y": 17, "z": 0 }, { "x": 2, "y": 10, "z": 0 }, { "x": 4, "y": 10, "z": 0 }, { "x": 4, "y": 15, "z": 0 }] },
+        { "label": "I", "coords": [{ "x": -4, "y": 17, "z": 0 }, { "x": -4, "y": 17, "z": 7 }, { "x": 2, "y": 17, "z": 7 }, { "x": 2, "y": 17, "z": 0 }] },
+        { "label": "J", "coords": [{ "x": -4, "y": 23, "z": 0 }, { "x": -4, "y": 23, "z": 7 }, { "x": -4, "y": 17, "z": 7 }, { "x": -4, "y": 17, "z": 0 }] },
+        { "label": "K", "coords": [{ "x": -4, "y": 23, "z": 0 }, { "x": -4, "y": 23, "z": 7 }, { "x": 6, "y": 23, "z": 7 }, { "x": 6, "y": 23, "z": 0 }] },
+        { "label": "L", "coords": [{ "x": 6, "y": 15, "z": 0 }, { "x": 6, "y": 15, "z": 7 }, { "x": 6, "y": 23, "z": 7 }, { "x": 6, "y": 23, "z": 0 }] },
+        { "label": "M", "coords": [{ "x": 4, "y": 15, "z": 0 }, { "x": 4, "y": 15, "z": 7 }, { "x": 6, "y": 15, "z": 7 }, { "x": 6, "y": 15, "z": 0 }] },
+        { "label": "N", "coords": [{ "x": -4, "y": 17, "z": 0 }, { "x": 2, "y": 17, "z": 0 }, { "x": 2, "y": 15, "z": 0 }, { "x": 6, "y": 15, "z": 0 }, { "x": 6, "y": 23, "z": 0 }, { "x": -4, "y": 23, "z": 0 }] },
+        { "label": "O", "coords": [{ "x": 2, "y": 10, "z": 0 }, { "x": 4, "y": 10, "z": 0 }, { "x": 4, "y": 15, "z": 0 }, { "x": 2, "y": 15, "z": 0 }] }
+    ]
+};
 var CAMERA_SPEED = 0.25;
 var Game = /** @class */ (function () {
     function Game(scene) {
@@ -241,7 +262,6 @@ function main() {
     function vec(x, y, z) {
         return new Vector3(x, y, z);
     }
-<<<<<<< HEAD
     var scene = new Scene3([
         new Polygon3([vec(0, 0, 0), vec(0, 5, 0), vec(10, 5, 0), vec(10, 0, 0)], 'floor'),
         new Polygon3([vec(0, 5, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 5, 0)], 'floor'),
@@ -278,26 +298,4 @@ function main() {
         }
         tick();
     });
-=======
-    var scene = new Scene3([]).project2d();
-    var game = new Renderer(canvas);
-    var cameraPos = new Vector2(-100, -400);
-    function tick() {
-        game.draw(scene, cameraPos);
-        window.requestAnimationFrame(tick);
-    }
-    tick();
-    function moveCamera(x, y) {
-        cameraPos = cameraPos.add(new Vector2(x, y));
-    }
-    function drawScene(polys) {
-        scene = new Scene3(polys).project2d();
-    }
-    return {
-        game: game,
-        cameraPos: cameraPos,
-        moveCamera: moveCamera,
-        drawScene: drawScene
-    };
->>>>>>> c4ba09ecfa6e2816569578638bc150566d43ac2a
 }
