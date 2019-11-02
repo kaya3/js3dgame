@@ -1,13 +1,18 @@
-const sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 32;
+const sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 6;
 
 class Vector3 {
+<<<<<<< HEAD
 	public static readonly ZERO = new Vector3(0, 0, 0);
 	public static readonly X_UNIT = new Vector3(1, 0, 0);
 	public static readonly Y_UNIT = new Vector3(0, 1, 0);
 	public static readonly Z_UNIT = new Vector3(0, 0, 1);
 	
+=======
+	public static CAMERA_NORMAL: Vector3;
+
+>>>>>>> c4ba09ecfa6e2816569578638bc150566d43ac2a
 	public constructor(public readonly x: number, public readonly y: number, public readonly z: number) {}
-	
+
 	public add(other: Vector3): Vector3 {
 		return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
 	}
@@ -54,7 +59,7 @@ class Vector3 {
 
 class Vector2 {
 	public constructor(public readonly x: number, public readonly y: number) {}
-	
+
 	public add(other: Vector2): Vector2 {
 		return new Vector2(this.x + other.x, this.y + other.y);
 	}
@@ -116,11 +121,11 @@ class Polygon2 {
 
 class Scene3 {
 	public constructor(private readonly polygons: Array<Polygon3> = []) {}
-	
+
 	public addPolygon(polygon: Polygon3): void {
 		this.polygons.push(polygon);
 	}
-	
+
 	public project2d(): Scene2 {
 		return new Scene2(this.polygons.map(p => p.project2d()));
 	}

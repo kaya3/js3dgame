@@ -1,5 +1,5 @@
 "use strict";
-var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 32;
+var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 6;
 var Vector3 = /** @class */ (function () {
     function Vector3(x, y, z) {
         this.x = x;
@@ -241,6 +241,7 @@ function main() {
     function vec(x, y, z) {
         return new Vector3(x, y, z);
     }
+<<<<<<< HEAD
     var scene = new Scene3([
         new Polygon3([vec(0, 0, 0), vec(0, 5, 0), vec(10, 5, 0), vec(10, 0, 0)], 'floor'),
         new Polygon3([vec(0, 5, 0), vec(0, 10, 1), vec(10, 10, 1), vec(10, 5, 0)], 'floor'),
@@ -277,4 +278,26 @@ function main() {
         }
         tick();
     });
+=======
+    var scene = new Scene3([]).project2d();
+    var game = new Renderer(canvas);
+    var cameraPos = new Vector2(-100, -400);
+    function tick() {
+        game.draw(scene, cameraPos);
+        window.requestAnimationFrame(tick);
+    }
+    tick();
+    function moveCamera(x, y) {
+        cameraPos = cameraPos.add(new Vector2(x, y));
+    }
+    function drawScene(polys) {
+        scene = new Scene3(polys).project2d();
+    }
+    return {
+        game: game,
+        cameraPos: cameraPos,
+        moveCamera: moveCamera,
+        drawScene: drawScene
+    };
+>>>>>>> c4ba09ecfa6e2816569578638bc150566d43ac2a
 }
