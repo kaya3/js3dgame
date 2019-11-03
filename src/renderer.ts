@@ -67,6 +67,13 @@ class Renderer {
 
         // Draw player
         this.drawSprite(game.player, camera);
+
+        //Draw npc
+        this.drawSprite(game.npc, camera);
+
+        //Draw item
+        this.drawSprite(game.item, camera);
+
 		
         // apply lighting
         ctx.globalCompositeOperation = 'multiply';
