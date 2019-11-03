@@ -36,7 +36,7 @@ class Game {
     public static MAX_ZOOM = 4;
     public static MIN_ZOOM = 0.25;
     public static PLAYER_SPEED = 0.003;
-    public static NPC_SPEED = 0.01;
+    public static NPC_SPEED = 0.08;
 
     public readonly camera: Camera;
     public readonly player: Player;
@@ -59,7 +59,7 @@ class Game {
 
 
         this.npcs = [];
-        for(let i=0; i<5; i++) {
+        for(let i=0; i<scene.as3d.data.numGeese; i++) {
             this.npcs[i] = new NPC(scene.as3d.data.playerStartPos, scene.as3d.data.playerSprite);
         }
     }
@@ -74,13 +74,15 @@ class Game {
         // console.info(this.npcs);
         this.handleKeyPresses(dt, keys);
 
-        for(let i=0; i<this.npcs.length; i++) {
-            let dx = Math.random()*Game.PLAYER_SPEED-Game.PLAYER_SPEED/2;
-            let dy = Math.random()*Game.PLAYER_SPEED-Game.PLAYER_SPEED/2;
+        this.moveNpcs();
+    }
 
-            this.moveSpriteWithinBounds(this.npcs[i], dx, dy);
-
-        }
+    private moveNpcs() {
+        this.npcs.forEach(npc => {
+            if(!this.moveSpriteWithinBounds(npc, npc.dx, npc.dy)) {
+                npc.updateDirection();
+            }
+        });
     }
 
     private handleKeyPresses(dt: number, keys: { [k: number]: number }) {
@@ -95,12 +97,12 @@ class Game {
         );
     }
 
-    private moveSpriteWithinBounds(sprite : Sprite, dx: number, dy: number) {
+    private moveSpriteWithinBounds(sprite : Sprite, dx: number, dy: number) : boolean {
         const x = sprite.pos.x + dx;
         const y = sprite.pos.y + dy;
 
         const floors = this.findFloorsByXY(x, y);
-        if (!floors.length) { return; }
+        if (!floors.length) { return false; }
 
         const oldZ = sprite.pos.z;
         let closestZ = floors[0].projectZ(x, y);
@@ -112,6 +114,8 @@ class Game {
         }
 
         sprite.setPos(new Vector3(x, y, closestZ));
+
+        return true;
     }
 
     private findFloorsByXY(x: number, y: number): Array<Polygon3> {

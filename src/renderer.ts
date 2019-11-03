@@ -69,14 +69,6 @@ class Renderer {
 
         // Draw npcs
         npcs.forEach(npc => this.drawSprite(npc));
-        npcs.forEach(npc => {
-            let dx = Math.random()*Game.NPC_SPEED/2-Game.NPC_SPEED;
-            let dy = Math.random()*Game.NPC_SPEED/2-Game.NPC_SPEED;
-
-            npc.setPos(npc.pos.add(new Vector3(dx, dy, npc.pos.z)));
-        });
-
-
 
 
         // Draw all??

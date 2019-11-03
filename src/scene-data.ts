@@ -9,6 +9,7 @@ type SceneData = {
     playerStartPos: Vector3,
     playerSprite: ImageName,
     backgroundColor: Color,
+    numGeese: number,
 };
 
 /**
@@ -57,5 +58,6 @@ const SCENE_DATA = (function (): SceneData {
         playerStartPos: v(5, 2, 0),
         playerSprite: 'stick_figure',
         backgroundColor: Color.rgb(48, 200, 48),
+        numGeese: 8
     };
 })();
