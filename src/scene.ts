@@ -1,13 +1,13 @@
 class Scene3 {
     public readonly polygons: ReadonlyArray<Polygon3>;
-    public readonly ambientLightColor: RGB;
+    public readonly ambientLightColor: Color;
     public readonly staticLights: ReadonlyArray<Light>;
     public readonly dynamicLights: Array<Light>;
 
     public constructor(public readonly data: SceneData) {
         this.polygons = data.faces.map(face => new Polygon3(face.coords, face.texture, face.isWalkable));
         let amb = data.lights.filter(x => x.kind === 'ambient')[0] as AmbientLight | undefined;
-        this.ambientLightColor = (amb ? amb.color : new RGB(0, 0, 0));
+        this.ambientLightColor = (amb ? amb.color : Color.greyscale(0));
         this.staticLights = data.lights.filter(x => x.kind === 'static');
         this.dynamicLights = data.lights.filter(x => x.kind === 'dynamic');
     }

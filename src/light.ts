@@ -1,6 +1,13 @@
-class RGB {
-    public constructor(public readonly r: number, public readonly g: number, public readonly b: number) {}
-
+class Color {
+    public static greyscale(n : number) {
+        return new Color(n,n,n);
+    }
+    public static rgb(r: number, g: number, b: number) {
+        return new Color(r,g,b);
+	}
+	
+    private constructor(public readonly r: number, public readonly g: number, public readonly b: number) {}
+	
     public toString(alpha = 1): string {
         let r = this.r, g = this.g, b = this.b;
         alpha = Math.min(alpha, 1);
@@ -19,7 +26,7 @@ interface Light {
 class AmbientLight implements Light {
     public readonly kind = 'ambient';
 
-    public constructor(public readonly color: RGB) {}
+    public constructor(public readonly color: Color) {}
 
     public drawForPolygon(ctx: CanvasRenderingContext2D, camera: Camera, polygon: Polygon2): void {
         throw new Error('Ambient light should not be drawn per-polygon');
@@ -30,7 +37,7 @@ class DirectionalLight implements Light {
     public readonly kind = 'static';
     private readonly direction: Vector3;
 
-    public constructor(direction: Vector3, private readonly color: RGB) {
+    public constructor(direction: Vector3, private readonly color: Color) {
         this.direction = direction.unit();
     }
 
@@ -48,7 +55,7 @@ class DirectionalLight implements Light {
 class PointLight implements Light {
     public constructor(
         public pos: Vector3,
-        private readonly color: RGB,
+        private readonly color: Color,
         private readonly intensity: number,
         public readonly kind: 'static' | 'dynamic'
     ) {}
@@ -62,7 +69,7 @@ class PointLight implements Light {
 		const uvOrigin = polygon.as3d.points[0];
 		
 		// add epsilon to correct for numerical error, and avoid div0
-        const distance = this.pos.subtract(uvOrigin).dot(normal) + 0.1;
+        const distance = this.pos.subtract(uvOrigin).dot(normal) + 1/64;
 
         if (distance >= 0 && distance < MAX_D) {
             const projected = this.pos.subtract(normal.scale(distance));
