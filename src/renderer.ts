@@ -40,6 +40,7 @@ class Renderer {
     public draw(game: Game, dynamicLights: boolean) {
 		const camera = game.camera;
 		const s3 = game.scene.as3d;
+		const npcs = game.npcs;
 		
         const ctx = this.ctx;
         const lightCtx = this.lightCtx;
@@ -67,15 +68,16 @@ class Renderer {
             }
         }
 
-        // Draw sprites
+        // Draw player
 		this.drawSprite(ctx, game.player, camera);
 		this.lightSprite(game.player, camera);
 		
+        // Draw sprites
         this.drawSprite(ctx, game.npc, camera);
-		this.lightSprite(game.npc, camera);
-		
         this.drawSprite(ctx, game.item, camera);
-        this.lightSprite(game.item, camera);
+
+        // Draw npcs
+        npcs.forEach(npc => this.drawSprite(ctx, npc, camera));
 
         // apply lighting
         ctx.globalCompositeOperation = 'multiply';
@@ -98,9 +100,9 @@ class Renderer {
         ctx.drawImage(
             img, 0, 0,
             sw, sh,
-			// drawImage draws an image, with the given x/y coordinates being the top-left corner
-			// we want the middle of the base of the image
-			pos2d.x - dw/2, pos2d.y - dh,
+            // drawImage draws an image, with the given x/y coordinates being the top-left corner
+            // we want the middle of the base of the image
+            pos2d.x - dw/2, pos2d.y - dh,
             dw, dh
         );
 	}
