@@ -19,7 +19,7 @@ const SCENE_DATA = (function (): SceneData {
         return new Vector3(x, y, z);
     }
 
-    const Z_PLAT1 = 0.5;
+    const Z_PLAT1 = 0;
     const Z_PLAT2 = 2.5;
 
     return {

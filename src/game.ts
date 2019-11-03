@@ -4,6 +4,10 @@ const KEYCODE_W = 87;
 const KEYCODE_A = 65;
 const KEYCODE_S = 83;
 const KEYCODE_D = 68;
+const KEYCODE_ARROW_LEFT = 37;
+const KEYCODE_ARROW_RIGHT = 39;
+const KEYCODE_ARROW_UP = 38;
+const KEYCODE_ARROW_DOWN = 40;
 
 class Game {
     public static CAMERA_SPEED = 0.4;
@@ -34,8 +38,8 @@ class Game {
     public tick(dt: number, keys: { [k: number]: number }): void {
         let dc = dt * Game.CAMERA_SPEED;
         this.camera.translate(
-            (keys[39] - keys[37]) * dc, // right - left
-            (keys[40] - keys[38]) * dc, // down - up
+            (keys[KEYCODE_ARROW_RIGHT] - keys[KEYCODE_ARROW_LEFT]) * dc, // right - left
+            (keys[KEYCODE_ARROW_DOWN] - keys[KEYCODE_ARROW_UP]) * dc, // down - up
         );
 
         this.handleKeyPresses(dt, keys);
