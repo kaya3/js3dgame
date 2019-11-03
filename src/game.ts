@@ -39,11 +39,17 @@ class Game {
 
     public readonly camera: Camera;
     public readonly player: Player;
-    public readonly playerLight: PointLight;
+    public playerLight: PointLight | null;
     public readonly npcs: NPC[];
     public readonly npc: NPC;
 	public readonly item: Item;
-	
+
+	private extinguishLight ( scene: Scene2) {
+	    console.info("light extinguished");
+	    this.playerLight = null;
+	    scene.as3d.dynamicLights = new Array<Light>();
+    }
+
     public constructor(public scene: Scene2) {
         this.player = new Player(Vector3.ZERO, scene.as3d.data.playerSprite);
         this.npc = new NPC(new Vector3(2.5, 17, 0), scene.as3d.data.npcSprite);
@@ -61,6 +67,11 @@ class Game {
         const cameraOffset = new Vector3(0.105, 0.105, 0.452);
         this.player.onMove(p => light.pos = p.add(cameraOffset));
         this.player.setPos(scene.as3d.data.playerStartPos);
+
+        setTimeout(function() {
+            console.info("light extinguished");
+            scene.as3d.dynamicLights = new Array<Light>();
+            }, 4000);
 
 
         this.npcs = [];

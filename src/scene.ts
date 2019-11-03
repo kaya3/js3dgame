@@ -2,7 +2,7 @@ class Scene3 {
     public readonly polygons: ReadonlyArray<Polygon3>;
     public readonly ambientLightColor: Color;
     public readonly staticLights: ReadonlyArray<Light>;
-    public readonly dynamicLights: Array<Light>;
+    public dynamicLights: Array<Light>;
 
     public constructor(public readonly data: SceneData) {
         this.polygons = data.faces.map(face => new Polygon3(face.coords, face.texture, face.isWalkable));
