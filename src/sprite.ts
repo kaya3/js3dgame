@@ -1,4 +1,9 @@
 class Sprite {
+    /**
+     *
+     * @param position the position of the top-left corner of the image
+     * @param sprite
+     */
     constructor(public position: Vector3, public readonly sprite: ImageName) {}
 
     public move(dx: number, dy: number): void {
