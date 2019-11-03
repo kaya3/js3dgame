@@ -41,15 +41,16 @@ class Renderer {
 
         const width = this.canvas.width;
         const height = this.canvas.height;
+        const s3 = scene.as3d;
 
         //ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = '#303030';
+        ctx.fillStyle = s3.data.backgroundColor.toString();
         ctx.fillRect(0, 0, width, height);
 
         lightCtx.globalCompositeOperation = 'source-over';
         lightCtx.setTransform(1, 0, 0, 1, 0, 0);
-        lightCtx.fillStyle = scene.as3d.ambientLightColor.toString();
+        lightCtx.fillStyle = s3.ambientLightColor.toString();
         lightCtx.fillRect(0, 0, width, height);
         lightCtx.globalCompositeOperation = 'lighter';
 
@@ -57,9 +58,9 @@ class Renderer {
         for (let i = 0; i < polygons.length; ++i) {
             let polygon = polygons[i];
             this.drawPolygon(polygon, camera);
-            this.lightPolygon(polygon, scene.as3d.staticLights, camera);
+            this.lightPolygon(polygon, s3.staticLights, camera);
             if (dynamicLights) {
-                this.lightPolygon(polygon, scene.as3d.dynamicLights, camera);
+                this.lightPolygon(polygon, s3.dynamicLights, camera);
             }
         }
 

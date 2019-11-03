@@ -7,7 +7,8 @@ type SceneData = {
     }>,
     lights: Array<Light>,
     playerStartPos: Vector3,
-    playerSprite: ImageName
+    playerSprite: ImageName,
+    backgroundColor: RGB,
 };
 
 /**
@@ -17,6 +18,8 @@ const SCENE_DATA = (function (): SceneData {
     function v(x: number, y: number, z: number): Vector3 {
         return new Vector3(x, y, z);
     }
+
+    const Z_PLAT2 = 2.5;
 
     return {
         faces: [
@@ -29,17 +32,17 @@ const SCENE_DATA = (function (): SceneData {
             { label: "F", isWalkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(6, 10, 1), v(6, 10, 0)] },
 
             // Corridor
-            { label: "O", isWalkable: true, texture: "floor", coords: [v(2, 10, 0), v(4, 10, 0), v(4, 15, 1), v(2, 15, 1)] },
-            { label: "G", isWalkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(4, 15, 2), v(4, 15, 1)] },
-            { label: "H", isWalkable: false, texture: "wall", coords: [v(2, 10, 0), v(2, 10, 1), v(2, 15, 2), v(2, 15, 0)] },
+            { label: "O", isWalkable: true, texture: "floor", coords: [v(2, 10, 0), v(4, 10, 0), v(4, 15, Z_PLAT2), v(2, 15, Z_PLAT2)] },
+            { label: "G", isWalkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(4, 15, Z_PLAT2), v(4, 15, 1)] },
+            { label: "H", isWalkable: false, texture: "wall", coords: [v(2, 10, 0), v(2, 10, 1), v(2, 15, Z_PLAT2), v(2, 15, 0)] },
 
             // Room 2
-            { label: "N", isWalkable: true, texture: "floor", coords: [v(-4, 15, 1), v(6, 15, 1), v(6, 23, 1), v(-4, 23, 1)] },
-            { label: "I", isWalkable: false, texture: "wall", coords: [v(-4, 15, 1), v(-4, 15, 2), v(2, 15, 2), v(2, 15, 1)] },
-            { label: "J", isWalkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(-4, 15, 2), v(-4, 15, 1)] },
-            { label: "K", isWalkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(6, 23, 2), v(6, 23, 1)] },
-            { label: "L", isWalkable: false, texture: "wall", coords: [v(6, 15, 1), v(6, 15, 2), v(6, 23, 2), v(6, 23, 1)] },
-            { label: "M", isWalkable: false, texture: "wall", coords: [v(4, 15, 1), v(4, 15, 2), v(6, 15, 2), v(6, 15, 1)] },
+            { label: "N", isWalkable: true, texture: "floor", coords: [v(-4, 15, Z_PLAT2), v(6, 15, Z_PLAT2), v(6, 23, Z_PLAT2), v(-4, 23, Z_PLAT2)] },
+            { label: "I", isWalkable: false, texture: "wall", coords: [v(-4, 15, 1), v(-4, 15, Z_PLAT2), v(2, 15, Z_PLAT2), v(2, 15, 1)] },
+            { label: "J", isWalkable: false, texture: "wall", coords: [v(-4, 23, 0), v(-4, 23, Z_PLAT2), v(-4, 15, Z_PLAT2), v(-4, 15, 0)] },
+            { label: "K", isWalkable: false, texture: "wall", coords: [v(-4, 23, 0), v(-4, 23, Z_PLAT2), v(6, 23, Z_PLAT2), v(6, 23, 0)] },
+            { label: "L", isWalkable: false, texture: "wall", coords: [v(6, 15, 1), v(6, 15, Z_PLAT2), v(6, 23, Z_PLAT2), v(6, 23, 1)] },
+            { label: "M", isWalkable: false, texture: "wall", coords: [v(4, 15, 1), v(4, 15, Z_PLAT2), v(6, 15, Z_PLAT2), v(6, 15, 1)] },
         ],
 
         lights: [
@@ -50,6 +53,7 @@ const SCENE_DATA = (function (): SceneData {
         ],
 
         playerStartPos: v(5, 2, 0),
-        playerSprite: 'stick_figure'
+        playerSprite: 'stick_figure',
+        backgroundColor: new RGB(48, 200, 48)
     };
 })();
