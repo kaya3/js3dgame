@@ -258,8 +258,7 @@ var Renderer = /** @class */ (function () {
     };
     Renderer.prototype.drawSprite = function (sprite) {
         var img = this.images[sprite.sprite];
-        // TODO: get from image
-        var spriteWidth = 40, spriteHeight = 64, pixelsLeft = 0, pixelsTop = 0;
+        var spriteWidth = img.width, spriteHeight = img.height, pixelsLeft = 0, pixelsTop = 0;
         var pos = sprite.position.project2d();
         this.ctx.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, pos.x, pos.y, spriteWidth, spriteHeight);
     };

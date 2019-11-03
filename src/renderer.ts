@@ -102,14 +102,13 @@ class Renderer {
 	}
 
 	private drawSprite(sprite: Sprite) {
-		var img = this.images[sprite.sprite];
-		// TODO: get from image
-		var spriteWidth  = 40,
-			spriteHeight = 64,
+		const img = this.images[sprite.sprite];
+		const spriteWidth  = img.width,
+			spriteHeight = img.height,
 			pixelsLeft   = 0,
 			pixelsTop    = 0;
 
-		var pos = sprite.position.project2d();
+		const pos = sprite.position.project2d();
 		
 		this.ctx.drawImage(
 			img,
