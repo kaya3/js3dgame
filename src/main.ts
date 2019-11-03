@@ -1,7 +1,9 @@
 function main() {
 
 	// Map the given input data into polygons and vectors
-	const environment: Polygon3[] = Util.convertInputSceneJsonToPolygonArray(SCENE_DATA);
+	const environment: Polygon3[] = SCENE_DATA.faces.map(face => {
+        return new Polygon3(face.coords, face.texture);
+    });
 
 	// Combine all the polygons into a single collection
 	let scenePolygons: Polygon3[] = [];
@@ -41,7 +43,7 @@ function main() {
 			}
 			lastTime = time;
 
-			renderer.draw(game.scene, game.camera, FIGURES_DATA.figures, true);
+			renderer.draw(game.scene, game.camera, SCENE_DATA.figures, true);
 			window.requestAnimationFrame(tick);
 		}
 		tick();

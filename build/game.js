@@ -11,15 +11,6 @@ var Util = /** @class */ (function () {
         }
         return val;
     };
-    Util.convertInputSceneJsonToPolygonArray = function (sceneData) {
-        return sceneData.faces.map(function (faceJson) {
-            var vecArray = faceJson.coords.map(function (coord) {
-                return new Vector3(coord.x, coord.y, coord.z);
-            });
-            var texture = faceJson.texture;
-            return new Polygon3(vecArray, texture);
-        });
-    };
     return Util;
 }());
 var CAMERA_SPEED = 0.4;
@@ -440,49 +431,47 @@ var Figure = /** @class */ (function () {
 /**
  * Data to represent the map.
  */
-var SCENE_DATA = {
-    "faces": [
-        // Room 1
-        { label: "C", is_walkable: true, texture: "floor", coords: [{ x: 0, y: 0, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 10, z: 0 }, { x: 0, y: 10, z: 0 }] },
-        { label: "A", is_walkable: false, texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 6, y: 0, z: 1 }, { x: 6, y: 0, z: 0 }] },
-        { label: "B", is_walkable: false, texture: "wall", coords: [{ x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 0, z: 1 },] },
-        { label: "D", is_walkable: false, texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: 10, z: 1 }, { x: 0, y: 10, z: 0 }] },
-        { label: "E", is_walkable: false, texture: "wall", coords: [{ x: 0, y: 10, z: 0 }, { x: 0, y: 10, z: 1 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 10, z: 0 }] },
-        { label: "F", is_walkable: false, texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }] },
-        // Corridor
-        { label: "O", is_walkable: true, texture: "floor", coords: [{ x: 2, y: 10, z: 0 }, { x: 4, y: 10, z: 0 }, { x: 4, y: 15, z: 1 }, { x: 2, y: 15, z: 1 }] },
-        { label: "G", is_walkable: false, texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 4, y: 15, z: 1 }] },
-        { label: "H", is_walkable: false, texture: "wall", coords: [{ x: 2, y: 10, z: 0 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 15, z: 2 }, { x: 2, y: 15, z: 0 }] },
-        // Room 2
-        { label: "N", is_walkable: true, texture: "floor", coords: [{ x: -4, y: 15, z: 1 }, { x: 6, y: 15, z: 1 }, { x: 6, y: 23, z: 1 }, { x: -4, y: 23, z: 1 }] },
-        // { label: "N", is_walkable: true, texture: "floor", coords: [{x:-4, y:15, z:1}, {x:2, y:15, z:1}, {x:2, y:15, z:1}, {x:6, y:15, z:1}, {x:6, y:23, z:1}, {x:-4, y:23, z:1}]},
-        // { label: "P", is_walkable: false, texture: "wall", coords: [{x:4, y:15, z:1}, {x:4, y:10, z:1}, {x:4, y:10, z:2}, {x:4, y:15, z:2}]},
-        // { label: "Q", is_walkable: false, texture: "wall", coords: [{x:2, y:17, z:1}, {x:2, y:10, z:1}, {x:4, y:10, z:1}, {x:4, y:15, z:1}]},
-        { label: "I", is_walkable: false, texture: "wall", coords: [{ x: -4, y: 15, z: 1 }, { x: -4, y: 15, z: 2 }, { x: 2, y: 15, z: 2 }, { x: 2, y: 15, z: 1 }] },
-        { label: "J", is_walkable: false, texture: "wall", coords: [{ x: -4, y: 23, z: 1 }, { x: -4, y: 23, z: 2 }, { x: -4, y: 15, z: 2 }, { x: -4, y: 15, z: 1 }] },
-        { label: "K", is_walkable: false, texture: "wall", coords: [{ x: -4, y: 23, z: 1 }, { x: -4, y: 23, z: 2 }, { x: 6, y: 23, z: 2 }, { x: 6, y: 23, z: 1 }] },
-        { label: "L", is_walkable: false, texture: "wall", coords: [{ x: 6, y: 15, z: 1 }, { x: 6, y: 15, z: 2 }, { x: 6, y: 23, z: 2 }, { x: 6, y: 23, z: 1 }] },
-        { label: "M", is_walkable: false, texture: "wall", coords: [{ x: 4, y: 15, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 6, y: 15, z: 2 }, { x: 6, y: 15, z: 1 }] },
-    ],
-    lights: [
-        new AmbientLight(new RGB(100, 100, 100)),
-        new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
-        new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),
-    ]
-};
-/**
- * Data to represent mobile / dynamic elements
- * TODO: Use a sprite (not a polygon to represent players) and rename
- */
-var FIGURES_DATA = {
-    figures: [
-        new Figure(250, 0, 0, "stick_figure"),
-        new Figure(350, 0, 0, "stick_figure")
-    ]
-};
+var SCENE_DATA = (function () {
+    function v(x, y, z) {
+        return new Vector3(x, y, z);
+    }
+    return {
+        "faces": [
+            // Room 1
+            { label: "C", is_walkable: true, texture: "floor", coords: [v(0, 0, 0), v(6, 0, 0), v(6, 10, 0), v(0, 10, 0)] },
+            { label: "A", is_walkable: false, texture: "wall", coords: [v(0, 0, 0), v(0, 0, 1), v(6, 0, 1), v(6, 0, 0)] },
+            { label: "B", is_walkable: false, texture: "wall", coords: [v(6, 10, 1), v(6, 10, 0), v(6, 0, 0), v(6, 0, 1),] },
+            { label: "D", is_walkable: false, texture: "wall", coords: [v(0, 0, 0), v(0, 0, 1), v(0, 10, 1), v(0, 10, 0)] },
+            { label: "E", is_walkable: false, texture: "wall", coords: [v(0, 10, 0), v(0, 10, 1), v(2, 10, 1), v(2, 10, 0)] },
+            { label: "F", is_walkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(6, 10, 1), v(6, 10, 0)] },
+            // Corridor
+            { label: "O", is_walkable: true, texture: "floor", coords: [v(2, 10, 0), v(4, 10, 0), v(4, 15, 1), v(2, 15, 1)] },
+            { label: "G", is_walkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(4, 15, 2), v(4, 15, 1)] },
+            { label: "H", is_walkable: false, texture: "wall", coords: [v(2, 10, 0), v(2, 10, 1), v(2, 15, 2), v(2, 15, 0)] },
+            // Room 2
+            { label: "N", is_walkable: true, texture: "floor", coords: [v(-4, 15, 1), v(6, 15, 1), v(6, 23, 1), v(-4, 23, 1)] },
+            { label: "I", is_walkable: false, texture: "wall", coords: [v(-4, 15, 1), v(-4, 15, 2), v(2, 15, 2), v(2, 15, 1)] },
+            { label: "J", is_walkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(-4, 15, 2), v(-4, 15, 1)] },
+            { label: "K", is_walkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(6, 23, 2), v(6, 23, 1)] },
+            { label: "L", is_walkable: false, texture: "wall", coords: [v(6, 15, 1), v(6, 15, 2), v(6, 23, 2), v(6, 23, 1)] },
+            { label: "M", is_walkable: false, texture: "wall", coords: [v(4, 15, 1), v(4, 15, 2), v(6, 15, 2), v(6, 15, 1)] },
+        ],
+        lights: [
+            new AmbientLight(new RGB(100, 100, 100)),
+            new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
+            new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),
+        ],
+        figures: [
+            new Figure(250, 0, 0, "stick_figure"),
+            new Figure(350, 0, 0, "stick_figure")
+        ]
+    };
+})();
 function main() {
     // Map the given input data into polygons and vectors
-    var environment = Util.convertInputSceneJsonToPolygonArray(SCENE_DATA);
+    var environment = SCENE_DATA.faces.map(function (face) {
+        return new Polygon3(face.coords, face.texture);
+    });
     // Combine all the polygons into a single collection
     var scenePolygons = [];
     scenePolygons.push.apply(scenePolygons, environment);
@@ -516,7 +505,7 @@ function main() {
                 game.tick(time - lastTime, keys);
             }
             lastTime = time;
-            renderer.draw(game.scene, game.camera, FIGURES_DATA.figures, true);
+            renderer.draw(game.scene, game.camera, SCENE_DATA.figures, true);
             window.requestAnimationFrame(tick);
         }
         tick();
