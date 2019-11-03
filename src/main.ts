@@ -1,16 +1,11 @@
 function main() {
-
-	// Map the given input data into polygons and vectors
-	const environment: Polygon3[] = SCENE_DATA.faces.map(face => {
+	// Map the given input data into polygons
+	const polygons: Polygon3[] = SCENE_DATA.faces.map(face => {
         return new Polygon3(face.coords, face.texture);
     });
-
-	// Combine all the polygons into a single collection
-	let scenePolygons: Polygon3[] = [];
-	scenePolygons.push(...environment);
-
+	
 	// Insert all polygons into the scene and project to 2d
-	const scene: Scene2 = new Scene3(scenePolygons, SCENE_DATA.lights).project2d();
+	const scene: Scene2 = new Scene3(polygons, SCENE_DATA.lights).project2d();
 
 	const keys: { [k: number]: number } = Object.create(null);
 	keys[37] = keys[38] = keys[39] = keys[40] = 0;
