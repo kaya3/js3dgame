@@ -20,7 +20,8 @@ type LightKind = 'ambient' | 'static' | 'dynamic';
 interface Light {
     kind: LightKind;
 
-    drawForPolygon(ctx: CanvasRenderingContext2D, camera: Camera, polygon: Polygon2): void;
+	drawForPolygon(ctx: CanvasRenderingContext2D, camera: Camera, polygon: Polygon2): void;
+	drawForCamera(ctx: CanvasRenderingContext2D, camera: Camera): void;
 }
 
 class AmbientLight implements Light {
@@ -31,6 +32,9 @@ class AmbientLight implements Light {
     public drawForPolygon(ctx: CanvasRenderingContext2D, camera: Camera, polygon: Polygon2): void {
         throw new Error('Ambient light should not be drawn per-polygon');
     }
+	drawForCamera(ctx: CanvasRenderingContext2D, camera: Camera): void {
+        throw new Error('Ambient light should not be drawn per-polygon');
+	}
 }
 
 class DirectionalLight implements Light {
@@ -50,20 +54,20 @@ class DirectionalLight implements Light {
             ctx.fill();
         }
     }
+	drawForCamera(ctx: CanvasRenderingContext2D, camera: Camera): void {}
 }
 
 class PointLight implements Light {
     public constructor(
         public pos: Vector3,
-        private readonly color: Color,
-        private readonly intensity: number,
+        public color: Color,
+        public intensity: number,
         public readonly kind: 'static' | 'dynamic'
     ) {}
 
     public drawForPolygon(ctx: CanvasRenderingContext2D, camera: Camera, polygon: Polygon2): void {
         const MAX_D = 10;
         const MAX_R = 10;
-        const COLOR_STOPS = 10;
 
         const normal = polygon.as3d.normal;
 		const uvOrigin = polygon.as3d.points[0];
@@ -83,20 +87,33 @@ class PointLight implements Light {
 
             polygon.uvTransform.apply(ctx, camera);
 
-            let gradient = ctx.createRadialGradient(u, v, 0, u, v, MAX_R);
-            let d2 = distance * distance;
-
-            for (let i = 0; i < COLOR_STOPS; ++i) {
-                let p = i * i / (COLOR_STOPS * COLOR_STOPS);
-                let r = MAX_R * p;
-                let denominator = Math.pow(d2 + r * r, 1.5);
-                let stopIntensity = this.intensity * distance / (denominator + 1e-5);
-                gradient.addColorStop(p, this.color.toString(stopIntensity));
-            }
-            gradient.addColorStop(1, this.color.toString(0));
-
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = this.makeGradient(ctx, u, v, distance, MAX_R, 1);
             ctx.fill();
         }
     }
+	drawForCamera(ctx: CanvasRenderingContext2D, camera: Camera): void {
+		const pos2d = this.pos.project2d();
+		const cx = pos2d.x, cy = pos2d.y, cs = 128*camera.scale;
+		camera.setTransform(ctx);
+		
+		ctx.globalCompositeOperation = 'lighter';
+		ctx.fillStyle = this.makeGradient(ctx, cx, cy, 0.1, cs, cs/1024);
+		ctx.fillRect(cx-cs, cy-cs, 2*cs, 2*cs);
+	}
+	
+	private makeGradient(ctx: CanvasRenderingContext2D, cx: number, cy: number, distance: number, radius: number, falloff: number): CanvasGradient {
+		const COLOR_STOPS = 10;
+		
+		let gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+		let d2 = distance * distance;
+		for (let i = 0; i < COLOR_STOPS; ++i) {
+			let p = i * i / (COLOR_STOPS * COLOR_STOPS);
+			let r = radius * p * falloff;
+			let denominator = Math.pow(d2 + r * r, 1.5);
+			let stopIntensity = this.intensity * distance / (denominator + 1e-5);
+			gradient.addColorStop(p, this.color.toString(stopIntensity));
+		}
+		gradient.addColorStop(1, this.color.toString(0));
+		return gradient;
+	}
 }
