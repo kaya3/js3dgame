@@ -1,30 +1,35 @@
 class Figure {
-    private x: number;
-    private y: number;
-    private z: number;
+    private canvasPosX: number;
+    private canvasPosY: number;
+    private canvasPosZ: number;
     private texture: TextureName;
-    private width: number;
 
-    constructor(x: number, y: number, z: number, width: number) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.width = width;
-        this.texture = "stick-figure";
-    }
-	
-    public getPolygon(): Polygon3 {
-        const halfWidth = this.width / 2;
-
-        const vecArray: Vector3[] = [
-            new Vector3(this.x - halfWidth, this.y, this.z),
-            new Vector3(this.x - halfWidth, this.y, this.z + this.width),
-            new Vector3(this.x + halfWidth, this.y, this.z + this.width),
-            new Vector3(this.x + halfWidth, this.y, this.z),
-        ];
-
-        return new Polygon3(vecArray, this.texture);
+    constructor(canvasPosX: number, canvasPosY: number, canvasPosZ: number) {
+        this.canvasPosX = canvasPosX;
+        this.canvasPosY = canvasPosY;
+        this.canvasPosZ = canvasPosZ;
+        this.texture = "stick_figure";
     }
 
+    drawOn(ctx: CanvasRenderingContext2D) {
+        var spriteWidth  = 40,
+            spriteHeight = 64,
+            pixelsLeft   = 0,
+            pixelsTop    = 0;
 
+        var playerImg = new Image();
+        playerImg.src = TEXTURES[this.texture];
+
+        ctx.drawImage(
+            playerImg,
+            pixelsLeft,
+            pixelsTop,
+            spriteWidth,
+            spriteHeight,
+            this.canvasPosX,
+            this.canvasPosY,
+            spriteWidth,
+            spriteHeight
+        );
+    }
 }

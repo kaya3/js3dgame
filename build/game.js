@@ -20,13 +20,6 @@ var Util = /** @class */ (function () {
             return new Polygon3(vecArray, texture);
         });
     };
-    Util.convertInputFigureJsonToPolygonArray = function (figureData) {
-        return figureData.faces.map(function (faceJson) {
-            //console.info('faceJson', faceJson);
-            var coord = faceJson.coords;
-            return new Figure(coord.x, coord.y, coord.z, coord.scale);
-        });
-    };
     return Util;
 }());
 var CAMERA_SPEED = 0.4;
@@ -52,7 +45,7 @@ var Game = /** @class */ (function () {
     };
     return Game;
 }());
-var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 50;
+var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 20;
 var Vector3 = /** @class */ (function () {
     function Vector3(x, y, z) {
         this.x = x;
@@ -195,8 +188,8 @@ var Camera = /** @class */ (function () {
         this.tlY = 0;
         this.width = 0;
         this.height = 0;
-        this.x = 0;
-        this.y = 0;
+        this.x = 500;
+        this.y = 100;
         this.scale = 1;
     }
     Camera.prototype.resizeWindow = function (width, height) {
@@ -240,7 +233,7 @@ var Renderer = /** @class */ (function () {
         this.canvas.width = this.lightCanvas.width = width;
         this.canvas.height = this.lightCanvas.height = height;
     };
-    Renderer.prototype.draw = function (scene, camera, dynamicLights) {
+    Renderer.prototype.draw = function (scene, camera, figures, dynamicLights) {
         var ctx = this.ctx;
         var lightCtx = this.lightCtx;
         var width = this.canvas.width;
@@ -263,6 +256,9 @@ var Renderer = /** @class */ (function () {
                 this.lightPolygon(polygon, scene.as3d.dynamicLights, camera);
             }
         }
+        // Draw figures
+        figures.forEach(function (figure) { return figure.drawOn(ctx); });
+        // Draw all??
         ctx.globalCompositeOperation = 'multiply';
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(this.lightCanvas, 0, 0);
@@ -289,7 +285,7 @@ var Renderer = /** @class */ (function () {
 var TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
-    'stick-figure': 'textures/figure.png'
+    'stick_figure': 'textures/figure.jpg'
 };
 var TEXTURE_SCALE = 0.005;
 var UVTransform = /** @class */ (function () {
@@ -417,30 +413,22 @@ var PointLight = /** @class */ (function () {
     return PointLight;
 }());
 var Figure = /** @class */ (function () {
-    function Figure(x, y, z, width) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.width = width;
-        this.texture = "stick-figure";
+    function Figure(canvasPosX, canvasPosY, canvasPosZ) {
+        this.canvasPosX = canvasPosX;
+        this.canvasPosY = canvasPosY;
+        this.canvasPosZ = canvasPosZ;
+        this.texture = "stick_figure";
     }
-    Figure.prototype.getPolygon = function () {
-        var halfWidth = this.width / 2;
-        var vecArray = [
-            new Vector3(this.x - halfWidth, this.y, this.z),
-            new Vector3(this.x - halfWidth, this.y, this.z + this.width),
-            new Vector3(this.x + halfWidth, this.y, this.z + this.width),
-            new Vector3(this.x + halfWidth, this.y, this.z),
-        ];
-        return new Polygon3(vecArray, this.texture);
+    Figure.prototype.drawOn = function (ctx) {
+        var spriteWidth = 40, spriteHeight = 64, pixelsLeft = 0, pixelsTop = 0;
+        var playerImg = new Image();
+        playerImg.src = TEXTURES[this.texture];
+        ctx.drawImage(playerImg, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, this.canvasPosX, this.canvasPosY, spriteWidth, spriteHeight);
     };
     return Figure;
 }());
 /**
- * Data to represent the map
- *
- * Note the polygons are drawn in the order shown --
- * thus, if you include the floor after the wall, the floor will draw on top of the walls
+ * Data to represent the map.
  */
 var SCENE_DATA = {
     "faces": [
@@ -467,47 +455,27 @@ var SCENE_DATA = {
         { label: "M", texture: "wall", coords: [{ x: 4, y: 15, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 6, y: 15, z: 2 }, { x: 6, y: 15, z: 1 }] },
     ],
     lights: [
-        new AmbientLight(new RGB(50, 50, 50)),
+        new AmbientLight(new RGB(100, 100, 100)),
         new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
         new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),
     ]
 };
+/**
+ * Data to represent mobile / dynamic elements
+ * TODO: Use a sprite (not a polygon to represent players) and rename
+ */
 var FIGURES_DATA = {
-    "faces": [
-        { label: "Player 1", texture: "stick-figure", coords: { x: 4, y: 5, z: 0.1, scale: 1 } }
+    figures: [
+        new Figure(250, 0, 0),
+        new Figure(350, 0, 0)
     ]
 };
 function main() {
-    /*
-    function vec(x: number, y: number, z: number): Vector3 {
-        return new Vector3(x, y, z);
-    }
-    
-    const polys = [
-        new Polygon3([ vec(0, 0, 0), vec(5, 0, 0), vec(5, 3, 0), vec(0, 3, 0) ], 'floor'),
-        new Polygon3([ vec(0, 3, 0), vec(5, 3, 0), vec(5, 5, 0.5), vec(0, 5, 0.5) ], 'floor'),
-        new Polygon3([ vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0) ], 'wall'),
-        new Polygon3([ vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1) ], 'wall'),
-        new Polygon3([ vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0) ], 'wall'),
-        new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0) ], 'wall'),
-    ];
-    const lights = [
-        new AmbientLight(new RGB(50, 50, 50)),
-        new DirectionalLight(vec(3, -1, 5), new RGB(50, 60, 40)),
-        new PointLight(vec(4, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
-    ];
-    const scene: Scene2 = new Scene3(polys, lights).project2d();
-    const game = new Game(scene);
-    
-    */
     // Map the given input data into polygons and vectors
     var environment = Util.convertInputSceneJsonToPolygonArray(SCENE_DATA);
-    var figures = Util.convertInputFigureJsonToPolygonArray(FIGURES_DATA);
-    var figuresPolygons = figures.map(function (figure) { return figure.getPolygon(); });
     // Combine all the polygons into a single collection
     var scenePolygons = [];
     scenePolygons.push.apply(scenePolygons, environment);
-    scenePolygons.push.apply(scenePolygons, figuresPolygons);
     // Insert all polygons into the scene and project to 2d
     var scene = new Scene3(scenePolygons, SCENE_DATA.lights).project2d();
     var keys = Object.create(null);
@@ -538,7 +506,7 @@ function main() {
                 game.tick(time - lastTime, keys);
             }
             lastTime = time;
-            renderer.draw(game.scene, game.camera, true);
+            renderer.draw(game.scene, game.camera, FIGURES_DATA.figures, true);
             window.requestAnimationFrame(tick);
         }
         tick();
