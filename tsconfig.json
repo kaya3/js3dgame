@@ -1,5 +1,8 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
+	"noImplicitAny": true,
+	"strictNullChecks": true,
 	"strict": true,
 	"outFile": "build/game.js"
   },
