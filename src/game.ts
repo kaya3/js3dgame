@@ -19,6 +19,7 @@ const PLAYER_DOWN = KEYCODE_ARROW_DOWN;
 const PLAYER_RIGHT = KEYCODE_ARROW_RIGHT;
 const PLAYER_LEFT = KEYCODE_ARROW_LEFT;
 
+const CAMERA_SCALE = 64;
 const CAMERA_UP = KEYCODE_W;
 const CAMERA_DOWN = KEYCODE_S;
 const CAMERA_RIGHT = KEYCODE_D;
@@ -42,25 +43,31 @@ class Game {
     public readonly player: Player;
     public readonly playerLight: PointLight;
     public readonly npcs: NPC[];
+    public readonly npc: NPC;
+    public readonly item: Item;
 
     public constructor(public scene: Scene2) {
         this.player = new Player(Vector3.ZERO, scene.as3d.data.playerSprite);
+        this.npc = new NPC(new Vector3(2.5, 17, 0), scene.as3d.data.npcSprite)
+        this.item = new Item(new Vector3(2.3, 4, 0), scene.as3d.data.itemSprite)
 
-        this.camera = new Camera();
+
+        const camera = this.camera = new Camera();
         this.player.onMove(p => {
-            // TODO: update camera position
-        });
-
+			const pos2d = p.project2d();
+            camera.moveTo(pos2d.x, pos2d.y);
+		});
+		
         const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'dynamic');
         this.scene.as3d.addDynamicLight(light);
-        const halfZ = new Vector3(0, 0, 0.5);
-        this.player.onMove(p => light.pos = p.add(halfZ));
+        const cameraOffset = new Vector3(1/20, 1/20, 1/3);
+        this.player.onMove(p => light.pos = p.add(cameraOffset));
         this.player.setPos(scene.as3d.data.playerStartPos);
 
 
         this.npcs = [];
         for(let i=0; i<scene.as3d.data.numGeese; i++) {
-            this.npcs[i] = new NPC(scene.as3d.data.playerStartPos, scene.as3d.data.playerSprite);
+            this.npcs[i] = new NPC(scene.as3d.data.playerStartPos, scene.as3d.data.npcSprite);
         }
     }
 
@@ -70,10 +77,7 @@ class Game {
             (keys[CAMERA_RIGHT] - keys[CAMERA_LEFT]) * dc, // right - left
             (keys[CAMERA_DOWN] - keys[CAMERA_UP]) * dc, // down - up
         );
-
-        // console.info(this.npcs);
         this.handleKeyPresses(dt, keys);
-
         this.moveNpcs();
     }
 
@@ -86,9 +90,17 @@ class Game {
     }
 
     private handleKeyPresses(dt: number, keys: { [k: number]: number }) {
-        let dz = (keys[ZOOM_IN] - keys[ZOOM_DOWN]) * dt * Game.CAMERA_ZOOM_SPEED;
-        this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, Game.MIN_ZOOM, Game.MAX_ZOOM);
-
+		// camera follows player, not controlled manually
+		/*
+		const dc = Game.CAMERA_SPEED * dt;
+        this.camera.translate(
+            (keys[CAMERA_RIGHT] - keys[CAMERA_LEFT]) * dc, // right - left
+            (keys[CAMERA_DOWN] - keys[CAMERA_UP]) * dc, // down - up
+		);*/
+		
+        const dz = Game.CAMERA_ZOOM_SPEED * (keys[ZOOM_IN] - keys[ZOOM_DOWN]) * dt;
+        this.camera.scale = Util.limitNumberRange(this.camera.scale * (1 + dz), Game.MIN_ZOOM, Game.MAX_ZOOM);
+		
         const dxy = Game.PLAYER_SPEED * dt;
         this.moveSpriteWithinBounds(
             this.player,

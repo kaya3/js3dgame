@@ -8,6 +8,10 @@ type SceneData = {
     lights: Array<Light>,
     playerStartPos: Vector3,
     playerSprite: ImageName,
+    npcStartPos: Vector3,
+    npcSprite: ImageName,
+    itemStartPos: Vector3,
+    itemSprite: ImageName,
     backgroundColor: Color,
     numGeese: number,
 };
@@ -49,15 +53,17 @@ const SCENE_DATA = (function (): SceneData {
         ],
 
         lights: [
-            new AmbientLight(Color.greyscale(80)),
+            new AmbientLight(Color.greyscale(10)),
             new DirectionalLight(new Vector3(3, -1, 5), Color.rgb(50, 60, 40)),
-
-            //new PointLight(new Vector3(5, 2, 0.5), Color.rgb(255, 255, 200), 1, 'static'),
         ],
 
         playerStartPos: v(5, 2, 0),
         playerSprite: 'stick_figure',
+        npcStartPos: v(5, 4, 0),
+        npcSprite: 'npc',
+        itemStartPos: v(5, 4, 0),
+        itemSprite: 'item',
         backgroundColor: Color.rgb(48, 200, 48),
-        numGeese: 8
+        numGeese: 140
     };
 })();

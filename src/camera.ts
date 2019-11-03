@@ -9,18 +9,19 @@ class Camera {
 
     public resizeWindow(width: number, height: number): void {
         this.width = width;
-        this.height = height;
-        this.tlX = width / 2 - this.x;
-        this.tlY = height / 2 - this.y;
+		this.height = height;
+		this.moveTo(0, 0);
     }
 
+	public moveTo(x: number, y: number): void {
+		this.x = x; this.y = y;
+        this.tlX = this.width / 2 - x;
+        this.tlY = this.height / 2 - y;
+	}
     public translate(dx: number, dy: number): void {
-        this.x += dx;
-        this.y += dy;
-        this.tlX -= dx;
-        this.tlY -= dy;
+		this.moveTo(this.x + dx, this.y + dy);
     }
-
+	
     public setTransform(ctx: CanvasRenderingContext2D): void {
         ctx.setTransform(this.scale, 0, 0, this.scale, this.tlX, this.tlY);
     }
