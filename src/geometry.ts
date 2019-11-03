@@ -5,7 +5,7 @@ class Vector3 {
 	public static readonly X_UNIT = new Vector3(1, 0, 0);
 	public static readonly Y_UNIT = new Vector3(0, 1, 0);
 	public static readonly Z_UNIT = new Vector3(0, 0, 1);
-	
+
 	public constructor(public readonly x: number, public readonly y: number, public readonly z: number) {}
 
 	public add(other: Vector3): Vector3 {
@@ -78,25 +78,30 @@ class Polygon3 {
 	public readonly normal: Vector3;
 	public readonly u: Vector3;
 	public readonly v: Vector3;
-	
 	public readonly cameraOrder: number;
+
 	public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: ImageName) {
 		const n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
-		var u = n.cross(Vector3.Z_UNIT);
+		let u = n.cross(Vector3.Z_UNIT);
 		this.u = u = (u.isZero() ? Vector3.X_UNIT : u.unit());
 		this.v = n.cross(u).unit();
-		
-		var m = points[0].cameraOrder();
-		for(var i = 1; i < points.length; ++i) {
+
+		let m = points[0].cameraOrder();
+		for (let i = 1; i < points.length; ++i) {
 			m = Math.min(points[i].cameraOrder(), m);
 		}
 		this.cameraOrder = -m;
 	}
+
 	public project2d(): Polygon2 {
 		return new Polygon2(
 			this.points.map(v => v.project2d()),
 			this
 		);
+	}
+
+	public contains(point: Vector3): boolean {
+		return Util.isPointInPolygon3D(this.points, point);
 	}
 }
 
@@ -106,24 +111,28 @@ class Polygon2 {
 		const u = as3d.u.project2d();
 		const v = as3d.v.project2d();
 		const p = points[0];
-		
+
 		this.uvTransform = new UVTransform(
 			u.x, u.y,
 			v.x, v.y,
 			p.x, p.y
 		);
 	}
-	
+
 	public drawPath(ctx: CanvasRenderingContext2D): void {
 		const points = this.points;
 		ctx.beginPath();
-		var v = points[0];
+		let v = points[0];
 		ctx.moveTo(v.x, v.y);
-		for(var i = 1; i < points.length; ++i) {
+		for(let i = 1; i < points.length; ++i) {
 			v = points[i];
 			ctx.lineTo(v.x, v.y);
 		}
 		ctx.closePath();
+	}
+
+	public contains(point: Vector2): boolean {
+		return Util.isPointInPolygon2D(this.points, point);
 	}
 }
 
@@ -131,14 +140,14 @@ class Scene3 {
 	public readonly ambientLightColor: RGB;
 	public readonly staticLights: ReadonlyArray<Light>;
 	public readonly dynamicLights: ReadonlyArray<Light>;
-	
+
 	public constructor(private readonly polygons: ReadonlyArray<Polygon3> = [], lights: Array<Light>) {
 		let amb = lights.filter(x => x.kind === 'ambient')[0] as AmbientLight|undefined;
 		this.ambientLightColor = (amb ? amb.color : new RGB(0, 0, 0));
 		this.staticLights = lights.filter(x => x.kind === 'static');
 		this.dynamicLights = lights.filter(x => x.kind === 'dynamic');
 	}
-	
+
 	public project2d(): Scene2 {
 		return new Scene2(
 			this.polygons.map(p => p.project2d()),

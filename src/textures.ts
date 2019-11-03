@@ -29,10 +29,10 @@ class UVTransform {
 function loadTextures(callback: (textureImgs: Textures) => void): void {
     const imgs = Object.create(null) as { [k in ImageName]: HTMLImageElement };
 
-    var count = 0;
+    let count = 0;
     for (let k in TEXTURES) {
         if (Object.hasOwnProperty.call(TEXTURES, k)) {
-            var img = new Image();
+            let img = new Image();
             img.src = TEXTURES[k as ImageName];
             img.style.display = 'none';
 
@@ -45,7 +45,7 @@ function loadTextures(callback: (textureImgs: Textures) => void): void {
     }
 
     for (let k in imgs) {
-        var body = document.getElementsByTagName('body')[0];
+        let body = document.getElementsByTagName('body')[0];
         body.appendChild(imgs[k as ImageName]);
     }
 }

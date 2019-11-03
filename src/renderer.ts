@@ -19,7 +19,7 @@ class Renderer {
 		const lc = this.lightCanvas = document.createElement('canvas');
 		this.lightCtx = lc.getContext('2d') as CanvasRenderingContext2D;
 
-		for(var k in images) {
+		for(let k in images) {
 			let kk = k as ImageName;
 			this.textures[kk] = ctx.createPattern(images[kk], 'repeat') as CanvasPattern;
 		}

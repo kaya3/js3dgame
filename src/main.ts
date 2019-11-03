@@ -31,7 +31,7 @@ function main() {
 		window.addEventListener('resize', resizeCanvas);
 		resizeCanvas();
 
-		var lastTime: DOMHighResTimeStamp|undefined;
+		let lastTime: DOMHighResTimeStamp|undefined;
 		function tick(time?: DOMHighResTimeStamp) {
 			if(time && lastTime) {
 				game.tick(time - lastTime, keys);
