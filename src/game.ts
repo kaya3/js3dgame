@@ -75,6 +75,6 @@ class Game {
     private findFloorsByXY(x: number, y: number): Array<Polygon3> {
         const xy = new Vector3(x, y, 0);
         return this.scene.as3d.polygons
-            .filter(face => face.isWalkable && Util.isPointInPolygon3D(face.points, xy));
+            .filter(face => face.isWalkable && Util.isPointInPolygon(face.points, xy));
     }
 }
