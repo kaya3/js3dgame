@@ -3,6 +3,8 @@ const TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
     'stick_figure': 'textures/figure.png',
+    'npc': 'textures/goose_left.png',
+    'item': 'textures/bed.png'
 };
 const TEXTURE_SCALE = 0.005;
 const SPRITE_SCALE = 2;

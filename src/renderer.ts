@@ -67,10 +67,16 @@ class Renderer {
             }
         }
 
-        // Draw player
+        // Draw sprites
 		this.drawSprite(ctx, game.player, camera);
+        this.drawSprite(ctx, game.npc, camera);
+        this.drawSprite(ctx, game.item, camera);
+
+		//light sprites
 		this.lightSprite(game.player, camera);
-		
+		this.lightSprite(game.npc, camera);
+        this.lightSprite(game.item, camera);
+
         // apply lighting
         ctx.globalCompositeOperation = 'multiply';
         ctx.setTransform(1, 0, 0, 1, 0, 0);

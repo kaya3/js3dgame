@@ -16,6 +16,8 @@
 	"src/light.ts",
     "src/sprite.ts",
 	"src/player.ts",
+	"src/npc.ts",
+	"src/item.ts",
     "src/scene-data.ts",
 	"src/game.ts",
 	"src/main.ts"

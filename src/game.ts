@@ -38,9 +38,14 @@ class Game {
     public readonly camera: Camera;
     public readonly player: Player;
     public readonly playerLight: PointLight;
+    public readonly npc: NPC;
+    public readonly item: Item;
 
     public constructor(public scene: Scene2) {
         this.player = new Player(Vector3.ZERO, scene.as3d.data.playerSprite);
+        this.npc = new NPC(new Vector3(2.5, 17, 0), scene.as3d.data.npcSprite)
+        this.item = new Item(new Vector3(2.3, 4, 0), scene.as3d.data.itemSprite)
+
 
         const camera = this.camera = new Camera();
         this.player.onMove(p => {
