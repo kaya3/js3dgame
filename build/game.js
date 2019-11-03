@@ -293,7 +293,7 @@ var Renderer = /** @class */ (function () {
 var TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
-    'stick_figure': 'textures/figure.jpg',
+    'stick_figure': 'textures/figure.png'
 };
 var TEXTURE_SCALE = 0.005;
 var UVTransform = /** @class */ (function () {
