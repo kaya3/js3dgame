@@ -49,7 +49,7 @@ class Game {
             // TODO: update camera position
         });
 
-        const light = this.playerLight = new PointLight(Vector3.ZERO, new RGB(255, 255, 200), 1, 'dynamic');
+        const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'dynamic');
         this.scene.as3d.addDynamicLight(light);
         const halfZ = new Vector3(0, 0, 0.5);
         this.player.onMove(p => light.pos = p.add(halfZ));
