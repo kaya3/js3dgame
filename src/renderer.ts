@@ -3,8 +3,8 @@ class Camera {
 	public tlY: number = 0;
 	public width: number = 0;
 	public height: number = 0;
-	public x: number = 0;
-	public y: number = 0;
+	public x: number = 500;
+	public y: number = 100;
 	public scale: number = 1;
 	
 	public resizeWindow(width: number, height: number): void {
@@ -62,7 +62,7 @@ class Renderer {
 		this.canvas.height = this.lightCanvas.height = height;
 	}
 	
-	public draw(scene: Scene2, camera: Camera, dynamicLights: boolean) {
+	public draw(scene: Scene2, camera: Camera, figures:Figure[], dynamicLights: boolean) {
 		const ctx = this.ctx;
 		const lightCtx = this.lightCtx;
 		
@@ -91,7 +91,12 @@ class Renderer {
 				this.lightPolygon(polygon, scene.as3d.dynamicLights, camera);
 			}
 		}
-		
+
+		// Draw figures
+		figures.forEach(figure => figure.drawOn(ctx));
+
+
+		// Draw all??
 		ctx.globalCompositeOperation = 'multiply';
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.drawImage(this.lightCanvas, 0, 0);

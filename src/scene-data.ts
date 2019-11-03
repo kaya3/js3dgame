@@ -7,7 +7,7 @@ type SceneData = {
 };
 
 type FigureData = {
-    figures: Array<{ label?: string, texture: TextureName, coords: FigureDataVector }>
+    figures: Array<Figure>
 };
 
 
@@ -43,7 +43,7 @@ const SCENE_DATA: SceneData = {
 	],
 	
 	lights: [
-		new AmbientLight(new RGB(50, 50, 50)),
+		new AmbientLight(new RGB(100, 100, 100)),
 		new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
 		new PointLight(new Vector3(5, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
 	]
@@ -55,6 +55,7 @@ const SCENE_DATA: SceneData = {
  */
 const FIGURES_DATA: FigureData = {
     figures: [
-        {label: "Player 1", texture: "stick-figure", coords: {x: 4, y: 5, z: 0.1, scale: 1}}
+        new Figure(250,0,0),
+        new Figure(350,0,0)
     ]
 };
