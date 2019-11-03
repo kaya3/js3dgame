@@ -48,7 +48,7 @@ const SCENE_DATA = (function (): SceneData {
         ],
 
         lights: [
-            new AmbientLight(Color.greyscale(30)),
+            new AmbientLight(Color.greyscale(80)),
             new DirectionalLight(new Vector3(3, -1, 5), Color.rgb(50, 60, 40)),
 
             //new PointLight(new Vector3(5, 2, 0.5), Color.rgb(255, 255, 200), 1, 'static'),
@@ -56,6 +56,6 @@ const SCENE_DATA = (function (): SceneData {
 
         playerStartPos: v(5, 2, 0),
         playerSprite: 'stick_figure',
-        backgroundColor: Color.rgb(48, 200, 48)
+        backgroundColor: Color.rgb(48, 200, 48),
     };
 })();

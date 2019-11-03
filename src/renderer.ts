@@ -35,7 +35,7 @@ class Renderer {
         this.canvas.height = this.lightCanvas.height = height;
     }
 
-    public draw(scene: Scene2, camera: Camera, player: Player, dynamicLights: boolean) {
+    public draw(scene: Scene2, camera: Camera, player: Player, npcs : NPC[], dynamicLights: boolean) {
         const ctx = this.ctx;
         const lightCtx = this.lightCtx;
 
@@ -66,6 +66,17 @@ class Renderer {
 
         // Draw player
         this.drawSprite(player);
+
+        // Draw npcs
+        npcs.forEach(npc => this.drawSprite(npc));
+        npcs.forEach(npc => {
+            let dx = Math.random()*Game.NPC_SPEED/2-Game.NPC_SPEED;
+            let dy = Math.random()*Game.NPC_SPEED/2-Game.NPC_SPEED;
+
+            npc.setPos(npc.pos.add(new Vector3(dx, dy, npc.pos.z)));
+        });
+
+
 
 
         // Draw all??

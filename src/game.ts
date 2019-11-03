@@ -36,10 +36,12 @@ class Game {
     public static MAX_ZOOM = 4;
     public static MIN_ZOOM = 0.25;
     public static PLAYER_SPEED = 0.003;
+    public static NPC_SPEED = 0.01;
 
     public readonly camera: Camera;
     public readonly player: Player;
     public readonly playerLight: PointLight;
+    public readonly npcs: NPC[];
 
     public constructor(public scene: Scene2) {
         this.player = new Player(Vector3.ZERO, scene.as3d.data.playerSprite);
@@ -54,6 +56,12 @@ class Game {
         const halfZ = new Vector3(0, 0, 0.5);
         this.player.onMove(p => light.pos = p.add(halfZ));
         this.player.setPos(scene.as3d.data.playerStartPos);
+
+
+        this.npcs = [];
+        for(let i=0; i<5; i++) {
+            this.npcs[i] = new NPC(scene.as3d.data.playerStartPos, scene.as3d.data.playerSprite);
+        }
     }
 
     public tick(dt: number, keys: { [k: number]: number }): void {
@@ -63,7 +71,16 @@ class Game {
             (keys[CAMERA_DOWN] - keys[CAMERA_UP]) * dc, // down - up
         );
 
+        // console.info(this.npcs);
         this.handleKeyPresses(dt, keys);
+
+        for(let i=0; i<this.npcs.length; i++) {
+            let dx = Math.random()*Game.PLAYER_SPEED-Game.PLAYER_SPEED/2;
+            let dy = Math.random()*Game.PLAYER_SPEED-Game.PLAYER_SPEED/2;
+
+            this.moveSpriteWithinBounds(this.npcs[i], dx, dy);
+
+        }
     }
 
     private handleKeyPresses(dt: number, keys: { [k: number]: number }) {
@@ -71,21 +88,21 @@ class Game {
         this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, Game.MIN_ZOOM, Game.MAX_ZOOM);
 
         const dxy = Game.PLAYER_SPEED * dt;
-        this.movePlayerWithinBounds(
+        this.moveSpriteWithinBounds(
+            this.player,
             (keys[PLAYER_RIGHT] - keys[PLAYER_LEFT] - keys[PLAYER_DOWN] + keys[PLAYER_UP]) * dxy,
             (keys[PLAYER_RIGHT] - keys[PLAYER_LEFT] + keys[PLAYER_DOWN] - keys[PLAYER_UP]) * dxy
         );
     }
 
-    private movePlayerWithinBounds(dx: number, dy: number) {
-        const player = this.player;
-        const x = player.pos.x + dx;
-        const y = player.pos.y + dy;
+    private moveSpriteWithinBounds(sprite : Sprite, dx: number, dy: number) {
+        const x = sprite.pos.x + dx;
+        const y = sprite.pos.y + dy;
 
         const floors = this.findFloorsByXY(x, y);
         if (!floors.length) { return; }
 
-        const oldZ = player.pos.z;
+        const oldZ = sprite.pos.z;
         let closestZ = floors[0].projectZ(x, y);
         for(let i = 1; i < floors.length; ++i) {
             let newZ = floors[i].projectZ(x, y);
@@ -94,7 +111,7 @@ class Game {
             }
         }
 
-        player.setPos(new Vector3(x, y, closestZ));
+        sprite.setPos(new Vector3(x, y, closestZ));
     }
 
     private findFloorsByXY(x: number, y: number): Array<Polygon3> {
