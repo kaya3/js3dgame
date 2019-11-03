@@ -11,7 +11,7 @@ class NPC extends Sprite {
     }
 
     private randomSpeed(): number {
-        return ((Math.random() * Game.NPC_SPEED) / 2) + Game.NPC_SPEED;
+        return ((Math.random() * Game.NPC_SPEED) * 2) + Game.NPC_SPEED;
     }
 
     public updateDirection() {
