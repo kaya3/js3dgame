@@ -59,8 +59,10 @@ class PointLight implements Light {
         const COLOR_STOPS = 10;
 
         const normal = polygon.as3d.normal;
-        const uvOrigin = polygon.as3d.points[0];
-        const distance = this.pos.subtract(uvOrigin).dot(normal);
+		const uvOrigin = polygon.as3d.points[0];
+		
+		// add epsilon to correct for numerical error, and avoid div0
+        const distance = this.pos.subtract(uvOrigin).dot(normal) + 0.1;
 
         if (distance >= 0 && distance < MAX_D) {
             const projected = this.pos.subtract(normal.scale(distance));
@@ -81,7 +83,7 @@ class PointLight implements Light {
                 let p = i * i / (COLOR_STOPS * COLOR_STOPS);
                 let r = MAX_R * p;
                 let denominator = Math.pow(d2 + r * r, 1.5);
-                let stopIntensity = this.intensity * distance / (denominator + 1e-5); // add epsilon to avoid div0
+                let stopIntensity = this.intensity * distance / (denominator + 1e-5);
                 gradient.addColorStop(p, this.color.toString(stopIntensity));
             }
             gradient.addColorStop(1, this.color.toString(0));

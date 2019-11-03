@@ -7,7 +7,7 @@ class Renderer {
 
     private readonly ctx: CanvasRenderingContext2D;
     private readonly lightCtx: CanvasRenderingContext2D;
-
+	
     public constructor(private readonly images: { [k in ImageName]: HTMLImageElement }) {
         const canvas = this.canvas = document.createElement('canvas');
         const ctx = this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -35,13 +35,14 @@ class Renderer {
         this.canvas.height = this.lightCanvas.height = height;
     }
 
-    public draw(scene: Scene2, camera: Camera, player: Player, dynamicLights: boolean) {
+    public draw(game: Game, dynamicLights: boolean) {
+		const camera = game.camera;
+		const s3 = game.scene.as3d;
+		
         const ctx = this.ctx;
         const lightCtx = this.lightCtx;
-
         const width = this.canvas.width;
         const height = this.canvas.height;
-        const s3 = scene.as3d;
 
         //ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.globalCompositeOperation = 'source-over';
@@ -54,7 +55,7 @@ class Renderer {
         lightCtx.fillRect(0, 0, width, height);
         lightCtx.globalCompositeOperation = 'lighter';
 
-        const polygons = scene.polygons;
+        const polygons = game.scene.polygons;
         for (let i = 0; i < polygons.length; ++i) {
             let polygon = polygons[i];
             this.drawPolygon(polygon, camera);
@@ -65,38 +66,28 @@ class Renderer {
         }
 
         // Draw player
-        this.drawSprite(player);
-
-
-        // Draw all??
+        this.drawSprite(game.player, camera);
+		
+        // apply lighting
         ctx.globalCompositeOperation = 'multiply';
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(this.lightCanvas, 0, 0);
     }
 
-    private drawSprite(sprite: Sprite) {
+    private drawSprite(sprite: Sprite, camera: Camera) {
         const img = this.images[sprite.sprite];
-        const spriteWidth = img.width,
-            spriteHeight = img.height,
-            pixelsLeft = 0,
-            pixelsTop = 0;
-
-        // drawImage draws an image, with the given x/y coordinates being the top-left corner
-        // we want the middle of the base of the image
-
-        const pos_topLeft_2d = sprite.pos.project2d();
-        const pos_bottomCenter_2d = pos_topLeft_2d.add(new Vector3(-(spriteWidth / 2), -(spriteHeight), 0));
-
+        const sw = img.width, sh = img.height;
+		const dw = sw * camera.scale * SPRITE_SCALE, dh = sh * camera.scale * SPRITE_SCALE;
+		
+		const pos2d = sprite.pos.project2d();
+		
         this.ctx.drawImage(
-            img,
-            pixelsLeft,
-            pixelsTop,
-            spriteWidth,
-            spriteHeight,
-            pos_bottomCenter_2d.x,
-            pos_bottomCenter_2d.y,
-            spriteWidth,
-            spriteHeight
+            img, 0, 0,
+            sw, sh,
+			// drawImage draws an image, with the given x/y coordinates being the top-left corner
+			// we want the middle of the base of the image
+			pos2d.x - dw/2, pos2d.y - dh,
+            dw, dh
         );
     }
 

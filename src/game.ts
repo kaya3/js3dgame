@@ -19,6 +19,7 @@ const PLAYER_DOWN = KEYCODE_ARROW_DOWN;
 const PLAYER_RIGHT = KEYCODE_ARROW_RIGHT;
 const PLAYER_LEFT = KEYCODE_ARROW_LEFT;
 
+const CAMERA_SCALE = 64;
 const CAMERA_UP = KEYCODE_W;
 const CAMERA_DOWN = KEYCODE_S;
 const CAMERA_RIGHT = KEYCODE_D;
@@ -44,32 +45,36 @@ class Game {
     public constructor(public scene: Scene2) {
         this.player = new Player(Vector3.ZERO, scene.as3d.data.playerSprite);
 
-        this.camera = new Camera();
+        const camera = this.camera = new Camera();
         this.player.onMove(p => {
-            // TODO: update camera position
+			const pos2d = p.project2d();
+            camera.moveTo(pos2d.x, pos2d.y);
         });
-
+		
         const light = this.playerLight = new PointLight(Vector3.ZERO, new RGB(255, 255, 200), 1, 'dynamic');
+		
         this.scene.as3d.addDynamicLight(light);
-        const halfZ = new Vector3(0, 0, 0.5);
-        this.player.onMove(p => light.pos = p.add(halfZ));
+        const cameraOffset = new Vector3(1/20, 1/20, 1/3);
+        this.player.onMove(p => light.pos = p.add(cameraOffset));
         this.player.setPos(scene.as3d.data.playerStartPos);
     }
 
     public tick(dt: number, keys: { [k: number]: number }): void {
-        let dc = dt * Game.CAMERA_SPEED;
-        this.camera.translate(
-            (keys[CAMERA_RIGHT] - keys[CAMERA_LEFT]) * dc, // right - left
-            (keys[CAMERA_DOWN] - keys[CAMERA_UP]) * dc, // down - up
-        );
-
         this.handleKeyPresses(dt, keys);
     }
 
     private handleKeyPresses(dt: number, keys: { [k: number]: number }) {
-        let dz = (keys[ZOOM_IN] - keys[ZOOM_DOWN]) * dt * Game.CAMERA_ZOOM_SPEED;
-        this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, Game.MIN_ZOOM, Game.MAX_ZOOM);
-
+		// camera follows player, not controlled manually
+		/*
+		const dc = Game.CAMERA_SPEED * dt;
+        this.camera.translate(
+            (keys[CAMERA_RIGHT] - keys[CAMERA_LEFT]) * dc, // right - left
+            (keys[CAMERA_DOWN] - keys[CAMERA_UP]) * dc, // down - up
+		);*/
+		
+        const dz = Game.CAMERA_ZOOM_SPEED * (keys[ZOOM_IN] - keys[ZOOM_DOWN]) * dt;
+        this.camera.scale = Util.limitNumberRange(this.camera.scale * (1 + dz), Game.MIN_ZOOM, Game.MAX_ZOOM);
+		
         const dxy = Game.PLAYER_SPEED * dt;
         this.movePlayerWithinBounds(
             (keys[PLAYER_RIGHT] - keys[PLAYER_LEFT] - keys[PLAYER_DOWN] + keys[PLAYER_UP]) * dxy,

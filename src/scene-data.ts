@@ -47,7 +47,7 @@ const SCENE_DATA = (function (): SceneData {
         ],
 
         lights: [
-            new AmbientLight(new RGB(100, 100, 100)),
+            new AmbientLight(new RGB(30, 30, 30)),
             new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
 
             //new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),

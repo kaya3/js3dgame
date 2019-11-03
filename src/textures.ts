@@ -5,6 +5,7 @@ const TEXTURES = {
     'stick_figure': 'textures/figure.png',
 };
 const TEXTURE_SCALE = 0.005;
+const SPRITE_SCALE = 2;
 
 type ImageName = keyof typeof TEXTURES;
 type Textures = { [k in ImageName]: HTMLImageElement };
