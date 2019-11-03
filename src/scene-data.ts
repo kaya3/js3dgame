@@ -48,8 +48,7 @@ const SCENE_DATA = (function (): SceneData {
         ],
 
         figures: [
-            new Figure(250, 0, 0, "stick_figure"),
-            new Figure(350, 0, 0, "stick_figure")
+            new Figure(v(5, 2, 0), "stick_figure")
         ]
     };
 })();

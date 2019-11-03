@@ -258,9 +258,11 @@ var Renderer = /** @class */ (function () {
         ctx.drawImage(this.lightCanvas, 0, 0);
     };
     Renderer.prototype.drawFigure = function (figure) {
+        var img = this.images[figure.sprite];
+        // TODO: get from image
         var spriteWidth = 40, spriteHeight = 64, pixelsLeft = 0, pixelsTop = 0;
-        var img = this.images[figure.getTextureName()];
-        this.ctx.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, figure.getX(), figure.getY(), spriteWidth, spriteHeight);
+        var pos = figure.position.project2d();
+        this.ctx.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, pos.x, pos.y, spriteWidth, spriteHeight);
     };
     Renderer.prototype.drawPolygon = function (polygon, camera) {
         var ctx = this.ctx;
@@ -411,20 +413,16 @@ var PointLight = /** @class */ (function () {
     return PointLight;
 }());
 var Figure = /** @class */ (function () {
-    function Figure(canvasPosX, canvasPosY, canvasPosZ, textureName) {
-        this.canvasPosX = canvasPosX;
-        this.canvasPosY = canvasPosY;
-        this.canvasPosZ = canvasPosZ;
-        this.textureName = textureName;
+    function Figure(position, sprite) {
+        this.position = position;
+        this.sprite = sprite;
     }
-    Figure.prototype.getTextureName = function () {
-        return this.textureName;
-    };
-    Figure.prototype.getX = function () {
-        return this.canvasPosX;
-    };
-    Figure.prototype.getY = function () {
-        return this.canvasPosY;
+    Figure.prototype.walk = function (dx, dy) {
+        var x = this.position.x + dx;
+        var y = this.position.y + dy;
+        var z = this.position.z;
+        // TODO: clip z to floor, don't let player walk through wall
+        this.position = new Vector3(x, y, z);
     };
     return Figure;
 }());
@@ -438,23 +436,23 @@ var SCENE_DATA = (function () {
     return {
         "faces": [
             // Room 1
-            { label: "C", is_walkable: true, texture: "floor", coords: [v(0, 0, 0), v(6, 0, 0), v(6, 10, 0), v(0, 10, 0)] },
-            { label: "A", is_walkable: false, texture: "wall", coords: [v(0, 0, 0), v(0, 0, 1), v(6, 0, 1), v(6, 0, 0)] },
-            { label: "B", is_walkable: false, texture: "wall", coords: [v(6, 10, 1), v(6, 10, 0), v(6, 0, 0), v(6, 0, 1),] },
-            { label: "D", is_walkable: false, texture: "wall", coords: [v(0, 0, 0), v(0, 0, 1), v(0, 10, 1), v(0, 10, 0)] },
-            { label: "E", is_walkable: false, texture: "wall", coords: [v(0, 10, 0), v(0, 10, 1), v(2, 10, 1), v(2, 10, 0)] },
-            { label: "F", is_walkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(6, 10, 1), v(6, 10, 0)] },
+            { label: "C", isWalkable: true, texture: "floor", coords: [v(0, 0, 0), v(6, 0, 0), v(6, 10, 0), v(0, 10, 0)] },
+            { label: "A", isWalkable: false, texture: "wall", coords: [v(0, 0, 0), v(0, 0, 1), v(6, 0, 1), v(6, 0, 0)] },
+            { label: "B", isWalkable: false, texture: "wall", coords: [v(6, 10, 1), v(6, 10, 0), v(6, 0, 0), v(6, 0, 1)] },
+            { label: "D", isWalkable: false, texture: "wall", coords: [v(0, 0, 0), v(0, 0, 1), v(0, 10, 1), v(0, 10, 0)] },
+            { label: "E", isWalkable: false, texture: "wall", coords: [v(0, 10, 0), v(0, 10, 1), v(2, 10, 1), v(2, 10, 0)] },
+            { label: "F", isWalkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(6, 10, 1), v(6, 10, 0)] },
             // Corridor
-            { label: "O", is_walkable: true, texture: "floor", coords: [v(2, 10, 0), v(4, 10, 0), v(4, 15, 1), v(2, 15, 1)] },
-            { label: "G", is_walkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(4, 15, 2), v(4, 15, 1)] },
-            { label: "H", is_walkable: false, texture: "wall", coords: [v(2, 10, 0), v(2, 10, 1), v(2, 15, 2), v(2, 15, 0)] },
+            { label: "O", isWalkable: true, texture: "floor", coords: [v(2, 10, 0), v(4, 10, 0), v(4, 15, 1), v(2, 15, 1)] },
+            { label: "G", isWalkable: false, texture: "wall", coords: [v(4, 10, 0), v(4, 10, 1), v(4, 15, 2), v(4, 15, 1)] },
+            { label: "H", isWalkable: false, texture: "wall", coords: [v(2, 10, 0), v(2, 10, 1), v(2, 15, 2), v(2, 15, 0)] },
             // Room 2
-            { label: "N", is_walkable: true, texture: "floor", coords: [v(-4, 15, 1), v(6, 15, 1), v(6, 23, 1), v(-4, 23, 1)] },
-            { label: "I", is_walkable: false, texture: "wall", coords: [v(-4, 15, 1), v(-4, 15, 2), v(2, 15, 2), v(2, 15, 1)] },
-            { label: "J", is_walkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(-4, 15, 2), v(-4, 15, 1)] },
-            { label: "K", is_walkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(6, 23, 2), v(6, 23, 1)] },
-            { label: "L", is_walkable: false, texture: "wall", coords: [v(6, 15, 1), v(6, 15, 2), v(6, 23, 2), v(6, 23, 1)] },
-            { label: "M", is_walkable: false, texture: "wall", coords: [v(4, 15, 1), v(4, 15, 2), v(6, 15, 2), v(6, 15, 1)] },
+            { label: "N", isWalkable: true, texture: "floor", coords: [v(-4, 15, 1), v(6, 15, 1), v(6, 23, 1), v(-4, 23, 1)] },
+            { label: "I", isWalkable: false, texture: "wall", coords: [v(-4, 15, 1), v(-4, 15, 2), v(2, 15, 2), v(2, 15, 1)] },
+            { label: "J", isWalkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(-4, 15, 2), v(-4, 15, 1)] },
+            { label: "K", isWalkable: false, texture: "wall", coords: [v(-4, 23, 1), v(-4, 23, 2), v(6, 23, 2), v(6, 23, 1)] },
+            { label: "L", isWalkable: false, texture: "wall", coords: [v(6, 15, 1), v(6, 15, 2), v(6, 23, 2), v(6, 23, 1)] },
+            { label: "M", isWalkable: false, texture: "wall", coords: [v(4, 15, 1), v(4, 15, 2), v(6, 15, 2), v(6, 15, 1)] },
         ],
         lights: [
             new AmbientLight(new RGB(100, 100, 100)),
@@ -462,21 +460,17 @@ var SCENE_DATA = (function () {
             new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),
         ],
         figures: [
-            new Figure(250, 0, 0, "stick_figure"),
-            new Figure(350, 0, 0, "stick_figure")
+            new Figure(v(5, 2, 0), "stick_figure")
         ]
     };
 })();
 function main() {
-    // Map the given input data into polygons and vectors
-    var environment = SCENE_DATA.faces.map(function (face) {
+    // Map the given input data into polygons
+    var polygons = SCENE_DATA.faces.map(function (face) {
         return new Polygon3(face.coords, face.texture);
     });
-    // Combine all the polygons into a single collection
-    var scenePolygons = [];
-    scenePolygons.push.apply(scenePolygons, environment);
     // Insert all polygons into the scene and project to 2d
-    var scene = new Scene3(scenePolygons, SCENE_DATA.lights).project2d();
+    var scene = new Scene3(polygons, SCENE_DATA.lights).project2d();
     var keys = Object.create(null);
     keys[37] = keys[38] = keys[39] = keys[40] = 0;
     window.addEventListener('keydown', function (e) {

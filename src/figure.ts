@@ -1,24 +1,13 @@
 class Figure {
-    private canvasPosX: number;
-    private canvasPosY: number;
-    private canvasPosZ: number;
-    private textureName: ImageName;
-
-    constructor(canvasPosX: number, canvasPosY: number, canvasPosZ: number, textureName : ImageName) {
-        this.canvasPosX = canvasPosX;
-        this.canvasPosY = canvasPosY;
-        this.canvasPosZ = canvasPosZ;
-        this.textureName = textureName;
-    }
-
-    public getTextureName() : ImageName {
-        return this.textureName;
-    }
-
-    public getX() {
-        return this.canvasPosX;
-    }
-    public getY() {
-        return this.canvasPosY;
-    }
+	constructor(public position: Vector3, public readonly sprite: ImageName) {}
+	
+	public walk(dx: number, dy: number): void {
+		let x = this.position.x + dx;
+		let y = this.position.y + dy;
+		let z = this.position.z;
+		
+		// TODO: clip z to floor, don't let player walk through wall
+		
+		this.position = new Vector3(x, y, z);
+	}
 }

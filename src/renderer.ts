@@ -102,21 +102,23 @@ class Renderer {
 	}
 
 	private drawFigure(figure: Figure) {
+		var img = this.images[figure.sprite];
+		// TODO: get from image
 		var spriteWidth  = 40,
 			spriteHeight = 64,
 			pixelsLeft   = 0,
 			pixelsTop    = 0;
 
-		var img = this.images[figure.getTextureName()];
-
+		var pos = figure.position.project2d();
+		
 		this.ctx.drawImage(
 			img,
 			pixelsLeft,
 			pixelsTop,
 			spriteWidth,
 			spriteHeight,
-			figure.getX(),
-			figure.getY(),
+			pos.x,
+			pos.y,
 			spriteWidth,
 			spriteHeight
 		);
