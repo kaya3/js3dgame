@@ -3,15 +3,14 @@
 function main() {
 
 	// Map the given input data into polygons and vectors
-	const environment: Polygon3[] = Util.convertInputJsonToPolygonArray(SCENE_DATA);
-
-	let figure : Figure = new Figure(4, 5, 0.1, 1);
-	const figures: Polygon3[] = [figure.getPolygon()];
+	const environment: Polygon3[] = Util.convertInputSceneJsonToPolygonArray(SCENE_DATA);
+	const figures: Figure[] = Util.convertInputFigureJsonToPolygonArray(FIGURES_DATA);
+	const figuresPolygons = figures.map(figure => figure.getPolygon());
 
 	// Combine all the polygons into a single collection
 	let scenePolygons: Polygon3[] = [];
 	scenePolygons.push(...environment);
-	scenePolygons.push(...figures);
+	scenePolygons.push(...figuresPolygons);
 
 	// Insert all polygons into the scene and project to 2d
 	const scene: Scene2 = new Scene3(scenePolygons).project2d();

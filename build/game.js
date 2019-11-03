@@ -218,13 +218,13 @@ function loadTextures(callback) {
 }
 function main() {
     // Map the given input data into polygons and vectors
-    var environment = Util.convertInputJsonToPolygonArray(SCENE_DATA);
-    var figure = new Figure(4, 5, 0.1, 1);
-    var figures = [figure.getPolygon()];
+    var environment = Util.convertInputSceneJsonToPolygonArray(SCENE_DATA);
+    var figures = Util.convertInputFigureJsonToPolygonArray(FIGURES_DATA);
+    var figuresPolygons = figures.map(function (figure) { return figure.getPolygon(); });
     // Combine all the polygons into a single collection
     var scenePolygons = [];
     scenePolygons.push.apply(scenePolygons, environment);
-    scenePolygons.push.apply(scenePolygons, figures);
+    scenePolygons.push.apply(scenePolygons, figuresPolygons);
     // Insert all polygons into the scene and project to 2d
     var scene = new Scene3(scenePolygons).project2d();
     // Add into the HTML DOM and react to user input/activity
@@ -266,14 +266,14 @@ function main() {
 var SCENE_DATA = {
     "faces": [
         // Room 1
-        { label: "C", texture: "floor", coords: [{ x: 0, y: 0, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 10, z: 0 }, { x: 0, y: 10, z: 0 }] },
+        // { label: "C", texture: "floor", coords: [{x:0, y:0, z:0}, {x:6, y:0, z:0}, {x:6, y:10, z:0}, {x:0, y:10, z:0}]},
         { label: "A", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 6, y: 0, z: 1 }, { x: 6, y: 0, z: 0 }] },
         { label: "B", texture: "wall", coords: [{ x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 0, z: 1 },] },
         { label: "D", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: 10, z: 1 }, { x: 0, y: 10, z: 0 }] },
         { label: "E", texture: "wall", coords: [{ x: 0, y: 10, z: 0 }, { x: 0, y: 10, z: 1 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 10, z: 0 }] },
         { label: "F", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }] },
         // Corridor
-        { label: "O", texture: "floor", coords: [{ x: 2, y: 10, z: 0 }, { x: 4, y: 10, z: 0 }, { x: 4, y: 15, z: 1 }, { x: 2, y: 15, z: 1 }] },
+        // { label: "O", texture: "floor", coords: [{x:2, y:10, z:0}, {x:4, y:10, z:0},{x:4, y:15, z:1},{x:2, y:15, z:1}]},
         { label: "G", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 4, y: 15, z: 1 }] },
         { label: "H", texture: "wall", coords: [{ x: 2, y: 10, z: 0 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 15, z: 2 }, { x: 2, y: 15, z: 1 }] },
         // Room 2
@@ -286,6 +286,11 @@ var SCENE_DATA = {
         { label: "K", texture: "wall", coords: [{ x: -4, y: 23, z: 1 }, { x: -4, y: 23, z: 2 }, { x: 6, y: 23, z: 2 }, { x: 6, y: 23, z: 1 }] },
         { label: "L", texture: "wall", coords: [{ x: 6, y: 15, z: 1 }, { x: 6, y: 15, z: 2 }, { x: 6, y: 23, z: 2 }, { x: 6, y: 23, z: 1 }] },
         { label: "M", texture: "wall", coords: [{ x: 4, y: 15, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 6, y: 15, z: 2 }, { x: 6, y: 15, z: 1 }] },
+    ]
+};
+var FIGURES_DATA = {
+    "faces": [
+        { label: "Player 1", texture: "stick-figure", coords: { x: 4, y: 5, z: 0.1, scale: 1 } }
     ]
 };
 var Figure = /** @class */ (function () {
@@ -320,13 +325,20 @@ var Util = /** @class */ (function () {
         }
         return val;
     };
-    Util.convertInputJsonToPolygonArray = function (sceneData) {
+    Util.convertInputSceneJsonToPolygonArray = function (sceneData) {
         return sceneData.faces.map(function (faceJson) {
             var vecArray = faceJson.coords.map(function (coord) {
                 return new Vector3(coord.x, coord.y, coord.z);
             });
             var texture = faceJson.texture;
             return new Polygon3(vecArray, texture);
+        });
+    };
+    Util.convertInputFigureJsonToPolygonArray = function (figureData) {
+        return figureData.faces.map(function (faceJson) {
+            console.info('faceJson', faceJson);
+            var coord = faceJson.coords;
+            return new Figure(coord.x, coord.y, coord.z, coord.scale);
         });
     };
     return Util;
