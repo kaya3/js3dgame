@@ -37,7 +37,7 @@ var Vector3 = /** @class */ (function () {
         return sqrt3 * (this.x - this.y) + sqrt2 * this.z;
     };
     Vector3.prototype.equals = function (other, eps) {
-        if (eps === void 0) { eps = 1e-10; }
+        if (eps === void 0) { eps = 1e-5; }
         return Math.abs(this.x - other.x) < eps
             && Math.abs(this.y - other.y) < eps
             && Math.abs(this.z - other.z) < eps;
@@ -76,8 +76,10 @@ var Polygon3 = /** @class */ (function () {
     function Polygon3(points, texture) {
         this.points = points;
         this.texture = texture;
-        this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
-        var points = this.points;
+        var n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
+        var u = n.cross(Vector3.Z_UNIT);
+        this.u = u = (u.equals(Vector3.ZERO) ? Vector3.X_UNIT : u.unit());
+        this.v = n.cross(u).unit();
         var m = points[0].cameraOrder();
         for (var i = 1; i < points.length; ++i) {
             m = Math.min(points[i].cameraOrder(), m);
@@ -93,83 +95,13 @@ var Polygon2 = /** @class */ (function () {
     function Polygon2(points, as3d) {
         this.points = points;
         this.as3d = as3d;
-        var u3 = as3d.normal.cross(Vector3.Z_UNIT);
-        if (u3.equals(Vector3.ZERO)) {
-            u3 = Vector3.X_UNIT;
-        }
-        else {
-            u3 = u3.unit();
-        }
-        var u = u3.project2d();
-        var v = as3d.normal.cross(u3).unit().project2d();
+        var u = as3d.u.project2d();
+        var v = as3d.v.project2d();
         var p = points[0];
-        this.textureTransform = {
-            a: u.x * TEXTURE_SCALE,
-            b: u.y * TEXTURE_SCALE,
-            c: v.x * TEXTURE_SCALE,
-            d: v.y * TEXTURE_SCALE,
-            x: p.x,
-            y: p.y
-        };
+        this.uvTransform = new UVTransform(u.x, u.y, v.x, v.y, p.x, p.y);
     }
-    return Polygon2;
-}());
-var Scene3 = /** @class */ (function () {
-    function Scene3(polygons) {
-        if (polygons === void 0) { polygons = []; }
-        this.polygons = polygons;
-    }
-    Scene3.prototype.addPolygon = function (polygon) {
-        this.polygons.push(polygon);
-    };
-    Scene3.prototype.project2d = function () {
-        return new Scene2(this.polygons.map(function (p) { return p.project2d(); }));
-    };
-    return Scene3;
-}());
-var Scene2 = /** @class */ (function () {
-    function Scene2(polygons) {
-        this.polygons = polygons;
-        polygons.sort(function (p, q) { return p.as3d.cameraOrder - q.as3d.cameraOrder; });
-    }
-    return Scene2;
-}());
-var Renderer = /** @class */ (function () {
-    function Renderer(canvas, textureImgs) {
-        this.canvas = canvas;
-        this.textures = Object.create(null);
-        var ctx = this.ctx = canvas.getContext('2d');
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 1;
-        for (var k in textureImgs) {
-            if (Object.prototype.hasOwnProperty.call(textureImgs, k)) {
-                this.textures[k] = ctx.createPattern(textureImgs[k], 'repeat');
-            }
-        }
-    }
-    Renderer.prototype.draw = function (scene, camera) {
-        var ctx = this.ctx;
-        var tx = this.textures;
-        var width = this.canvas.width;
-        var height = this.canvas.height;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.fillStyle = '#0000D0';
-        ctx.fillRect(0, 0, width, height);
-        var cx = (width / 2) - camera.x;
-        var cy = (height / 2) - camera.y;
-        var cs = camera.scale;
-        var polygons = scene.polygons;
-        for (var i = 0; i < polygons.length; ++i) {
-            var polygon = polygons[i];
-            this.drawPolygon(polygons[i], cx, cy, cs);
-        }
-    };
-    Renderer.prototype.drawPolygon = function (polygon, cx, cy, cs) {
-        var ctx = this.ctx;
-        var points = polygon.points;
-        ctx.setTransform(cs, 0, 0, cs, cx, cy);
+    Polygon2.prototype.drawPath = function (ctx) {
+        var points = this.points;
         ctx.beginPath();
         var v = points[0];
         ctx.moveTo(v.x, v.y);
@@ -178,12 +110,123 @@ var Renderer = /** @class */ (function () {
             ctx.lineTo(v.x, v.y);
         }
         ctx.closePath();
-        var tf = polygon.textureTransform;
-        ctx.setTransform(cs * tf.a, cs * tf.b, cs * tf.c, cs * tf.d, tf.x + cx, tf.y + cy);
+    };
+    return Polygon2;
+}());
+var Scene3 = /** @class */ (function () {
+    function Scene3(polygons, lights) {
+        if (polygons === void 0) { polygons = []; }
+        this.polygons = polygons;
+        var amb = lights.filter(function (x) { return x.kind === 'ambient'; })[0];
+        this.ambientLightColor = (amb ? amb.color : new RGB(0, 0, 0));
+        this.staticLights = lights.filter(function (x) { return x.kind === 'static'; });
+        this.dynamicLights = lights.filter(function (x) { return x.kind === 'dynamic'; });
+    }
+    Scene3.prototype.project2d = function () {
+        return new Scene2(this.polygons.map(function (p) { return p.project2d(); }), this);
+    };
+    return Scene3;
+}());
+var Scene2 = /** @class */ (function () {
+    function Scene2(polygons, as3d) {
+        this.as3d = as3d;
+        this.polygons = polygons.sort(function (p, q) { return p.as3d.cameraOrder - q.as3d.cameraOrder; });
+    }
+    return Scene2;
+}());
+var Camera = /** @class */ (function () {
+    function Camera() {
+        this.tlX = 0;
+        this.tlY = 0;
+        this.width = 0;
+        this.height = 0;
+        this.x = 0;
+        this.y = 0;
+        this.scale = 1;
+    }
+    Camera.prototype.resizeWindow = function (width, height) {
+        this.width = width;
+        this.height = height;
+        this.tlX = width / 2 - this.x;
+        this.tlY = height / 2 - this.y;
+    };
+    Camera.prototype.translate = function (dx, dy) {
+        this.x += dx;
+        this.y += dy;
+        this.tlX -= dx;
+        this.tlY -= dy;
+    };
+    Camera.prototype.setTransform = function (ctx) {
+        ctx.setTransform(this.scale, 0, 0, this.scale, this.tlX, this.tlY);
+    };
+    return Camera;
+}());
+var Renderer = /** @class */ (function () {
+    function Renderer(textureImgs) {
+        this.textures = Object.create(null);
+        var canvas = this.canvas = document.createElement('canvas');
+        var ctx = this.ctx = canvas.getContext('2d');
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        var lc = this.lightCanvas = document.createElement('canvas');
+        this.lightCtx = lc.getContext('2d');
+        for (var k in textureImgs) {
+            var kk = k;
+            this.textures[kk] = ctx.createPattern(textureImgs[kk], 'repeat');
+        }
+        var body = document.getElementsByTagName('body')[0];
+        body.appendChild(canvas);
+        body.appendChild(lc);
+        lc.style.display = 'none';
+    }
+    Renderer.prototype.resizeWindow = function (width, height) {
+        this.canvas.width = this.lightCanvas.width = width;
+        this.canvas.height = this.lightCanvas.height = height;
+    };
+    Renderer.prototype.draw = function (scene, camera, dynamicLights) {
+        var ctx = this.ctx;
+        var lightCtx = this.lightCtx;
+        var width = this.canvas.width;
+        var height = this.canvas.height;
+        //ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = '#303030';
+        ctx.fillRect(0, 0, width, height);
+        lightCtx.globalCompositeOperation = 'source-over';
+        lightCtx.setTransform(1, 0, 0, 1, 0, 0);
+        lightCtx.fillStyle = scene.as3d.ambientLightColor.toString();
+        lightCtx.fillRect(0, 0, width, height);
+        lightCtx.globalCompositeOperation = 'lighter';
+        var polygons = scene.polygons;
+        for (var i = 0; i < polygons.length; ++i) {
+            var polygon = polygons[i];
+            this.drawPolygon(polygon, camera);
+            this.lightPolygon(polygon, scene.as3d.staticLights, camera);
+            if (dynamicLights) {
+                this.lightPolygon(polygon, scene.as3d.dynamicLights, camera);
+            }
+        }
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.drawImage(this.lightCanvas, 0, 0);
+    };
+    Renderer.prototype.drawPolygon = function (polygon, camera) {
+        var ctx = this.ctx;
+        camera.setTransform(ctx);
+        polygon.drawPath(ctx);
+        polygon.uvTransform.apply(ctx, camera, TEXTURE_SCALE);
         ctx.fillStyle = this.textures[polygon.as3d.texture];
         ctx.fill();
-        ctx.setTransform(cs, 0, 0, cs, cx, cy);
+        camera.setTransform(ctx);
         ctx.stroke();
+    };
+    Renderer.prototype.lightPolygon = function (polygon, lights, camera) {
+        var lightCtx = this.lightCtx;
+        for (var i = 0; i < lights.length; ++i) {
+            lights[i].drawForPolygon(lightCtx, camera, polygon);
+        }
     };
     return Renderer;
 }());
@@ -192,14 +235,32 @@ var TEXTURES = {
     'floor': 'textures/floor-tiles.jpg'
 };
 var TEXTURE_SCALE = 0.005;
+var UVTransform = /** @class */ (function () {
+    function UVTransform(a, b, c, d, x, y) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+        this.d = d;
+        this.x = x;
+        this.y = y;
+    }
+    UVTransform.prototype.apply = function (ctx, camera, uvScale) {
+        if (uvScale === void 0) { uvScale = 1; }
+        // TODO: check offset when camera.scale != 1
+        var scale = camera.scale * uvScale;
+        ctx.setTransform(scale * this.a, scale * this.b, scale * this.c, scale * this.d, this.x + camera.tlX, this.y + camera.tlY);
+    };
+    return UVTransform;
+}());
+;
 function loadTextures(callback) {
-    var imgs = {};
+    var imgs = Object.create(null);
     var count = 0;
     for (var k in TEXTURES) {
         if (Object.hasOwnProperty.call(TEXTURES, k)) {
             var img = new Image();
             img.src = TEXTURES[k];
-            img.style.display = 'hidden';
+            img.style.display = 'none';
             ++count;
             img.onload = function () {
                 if (--count == 0) {
@@ -214,6 +275,73 @@ function loadTextures(callback) {
         body.appendChild(imgs[k]);
     }
 }
+var RGB = /** @class */ (function () {
+    function RGB(r, g, b) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+    RGB.prototype.toString = function (alpha) {
+        if (alpha === void 0) { alpha = 1; }
+        return ['rgba(', this.r | 0, ',', this.g | 0, ',', this.b | 0, ',', alpha, ')'].join('');
+    };
+    return RGB;
+}());
+var AmbientLight = /** @class */ (function () {
+    function AmbientLight(color) {
+        this.color = color;
+        this.kind = 'ambient';
+    }
+    AmbientLight.prototype.drawForPolygon = function (ctx, camera, polygon) {
+        throw new Error('Ambient light should not be drawn per-polygon');
+    };
+    return AmbientLight;
+}());
+var DirectionalLight = /** @class */ (function () {
+    function DirectionalLight(direction, color) {
+        this.color = color;
+        this.kind = 'static';
+        this.direction = direction.unit();
+    }
+    DirectionalLight.prototype.drawForPolygon = function (ctx, camera, polygon) {
+        var intensity = -polygon.as3d.normal.dot(this.direction);
+        if (intensity > 0) {
+            camera.setTransform(ctx);
+            polygon.drawPath(ctx);
+            ctx.fillStyle = this.color.toString(intensity);
+            ctx.fill();
+        }
+    };
+    return DirectionalLight;
+}());
+var PointLight = /** @class */ (function () {
+    function PointLight(pos, color, intensity, kind) {
+        this.pos = pos;
+        this.color = color;
+        this.intensity = intensity;
+        this.kind = kind;
+    }
+    PointLight.prototype.drawForPolygon = function (ctx, camera, polygon) {
+        var normal = polygon.as3d.normal;
+        var uvOrigin = polygon.as3d.points[0];
+        var distance = this.pos.subtract(uvOrigin).dot(normal);
+        if (distance >= 0) {
+            var projected = this.pos.subtract(normal.scale(distance));
+            var uvOffset = projected.subtract(uvOrigin);
+            var u = polygon.as3d.u.dot(uvOffset);
+            var v = polygon.as3d.v.dot(uvOffset);
+            ctx.save();
+            camera.setTransform(ctx);
+            polygon.drawPath(ctx);
+            ctx.clip();
+            polygon.uvTransform.apply(ctx, camera);
+            ctx.fillStyle = this.color.toString();
+            ctx.fillRect(u - 0.25, v - 0.25, 0.5, 0.5);
+            ctx.restore();
+        }
+    };
+    return PointLight;
+}());
 var SCENE_DATA = {
     "faces": [
         { "label": "A", "texture": "wall", "coords": [{ "x": 0, "y": 0, "z": 0 }, { "x": 0, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 0 }] },
@@ -239,22 +367,12 @@ var CAMERA_SPEED = 0.25;
 var Game = /** @class */ (function () {
     function Game(scene) {
         this.scene = scene;
-        this.camera = { x: 0, y: 0, scale: 1 };
+        this.camera = new Camera();
     }
     Game.prototype.tick = function (dt, keys) {
         var dc = dt * CAMERA_SPEED;
-        if (keys[37]) {
-            this.camera.x -= dc;
-        } // left
-        if (keys[38]) {
-            this.camera.y -= dc;
-        } // up
-        if (keys[39]) {
-            this.camera.x += dc;
-        } // right
-        if (keys[40]) {
-            this.camera.y += dc;
-        } // down
+        this.camera.translate((keys[39] - keys[37]) * dc, // right - left
+        (keys[40] - keys[38]) * dc);
     };
     return Game;
 }());
@@ -262,38 +380,47 @@ function main() {
     function vec(x, y, z) {
         return new Vector3(x, y, z);
     }
-    var scene = new Scene3([
-        new Polygon3([vec(0, 0, 0), vec(0, 3, 0), vec(5, 3, 0), vec(5, 0, 0)], 'floor'),
-        new Polygon3([vec(0, 3, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 3, 0)], 'floor'),
+    var polys = [
+        new Polygon3([vec(0, 0, 0), vec(5, 0, 0), vec(5, 3, 0), vec(0, 3, 0)], 'floor'),
+        new Polygon3([vec(0, 3, 0), vec(5, 3, 0), vec(5, 5, 0.5), vec(0, 5, 0.5)], 'floor'),
         new Polygon3([vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0)], 'wall'),
         new Polygon3([vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1)], 'wall'),
         new Polygon3([vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0)], 'wall'),
         new Polygon3([vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0)], 'wall'),
-    ]).project2d();
-    var canvas = document.getElementById('canvas');
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    ];
+    var lights = [
+        new AmbientLight(new RGB(50, 50, 50)),
+        new DirectionalLight(vec(3, -1, 5), new RGB(50, 60, 40)),
+        new PointLight(vec(4, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
+    ];
+    var scene = new Scene3(polys, lights).project2d();
+    var game = new Game(scene);
     var keys = Object.create(null);
+    keys[37] = keys[38] = keys[39] = keys[40] = 0;
     window.addEventListener('keydown', function (e) {
-        keys[e.keyCode] = true;
+        keys[e.keyCode] = 1;
     });
     window.addEventListener('keyup', function (e) {
-        keys[e.keyCode] = false;
+        keys[e.keyCode] = 0;
     });
     loadTextures(function (imgs) {
-        var game = new Game(scene);
-        var renderer = new Renderer(canvas, imgs);
+        var renderer = new Renderer(imgs);
+        function resizeCanvas() {
+            var w = window.innerWidth, h = window.innerHeight;
+            game.camera.resizeWindow(w, h);
+            if (renderer) {
+                renderer.resizeWindow(w, h);
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
         var lastTime;
         function tick(time) {
             if (time && lastTime) {
                 game.tick(time - lastTime, keys);
             }
             lastTime = time;
-            renderer.draw(game.scene, game.camera);
+            renderer.draw(game.scene, game.camera, true);
             window.requestAnimationFrame(tick);
         }
         tick();

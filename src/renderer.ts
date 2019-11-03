@@ -1,70 +1,120 @@
-interface Camera {
-	x: number;
-	y: number;
-	scale: number;
+class Camera {
+	public tlX: number = 0;
+	public tlY: number = 0;
+	public width: number = 0;
+	public height: number = 0;
+	public x: number = 0;
+	public y: number = 0;
+	public scale: number = 1;
+	
+	public resizeWindow(width: number, height: number): void {
+		this.width = width;
+		this.height = height;
+		this.tlX = width/2 - this.x;
+		this.tlY = height/2 - this.y;
+	}
+	
+	public translate(dx: number, dy: number): void {
+		this.x += dx;
+		this.y += dy;
+		this.tlX -= dx;
+		this.tlY -= dy;
+	}
+	
+	public setTransform(ctx: CanvasRenderingContext2D): void {
+		ctx.setTransform(this.scale, 0, 0, this.scale, this.tlX, this.tlY);
+	}
 }
 
 class Renderer {
-	private readonly ctx: CanvasRenderingContext2D;
 	private readonly textures: { [k in TextureName]: CanvasPattern } = Object.create(null);
-	public constructor(private readonly canvas: HTMLCanvasElement, textureImgs: Textures) {
+	
+	private readonly canvas: HTMLCanvasElement;
+	private readonly lightCanvas: HTMLCanvasElement;
+	
+	private readonly ctx: CanvasRenderingContext2D;
+	private readonly lightCtx: CanvasRenderingContext2D;
+	
+	public constructor(textureImgs: Textures) {
+		const canvas = this.canvas = document.createElement('canvas');
 		const ctx = this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
 		ctx.strokeStyle = 'black';
 		ctx.lineWidth = 1;
 		
+		const lc = this.lightCanvas = document.createElement('canvas');
+		this.lightCtx = lc.getContext('2d') as CanvasRenderingContext2D;
+		
 		for(var k in textureImgs) {
-			if(Object.prototype.hasOwnProperty.call(textureImgs, k)) {
-				this.textures[k as TextureName] = ctx.createPattern(textureImgs[k as TextureName], 'repeat') as CanvasPattern;
-			}
+			let kk = k as TextureName;
+			this.textures[kk] = ctx.createPattern(textureImgs[kk], 'repeat') as CanvasPattern;
 		}
+		
+		const body = document.getElementsByTagName('body')[0];
+		body.appendChild(canvas);
+		body.appendChild(lc);
+		lc.style.display = 'none';
 	}
 	
-	public draw(scene: Scene2, camera: Camera) {
+	public resizeWindow(width: number, height: number): void {
+		this.canvas.width = this.lightCanvas.width = width;
+		this.canvas.height = this.lightCanvas.height = height;
+	}
+	
+	public draw(scene: Scene2, camera: Camera, dynamicLights: boolean) {
 		const ctx = this.ctx;
-		const tx = this.textures;
+		const lightCtx = this.lightCtx;
 		
 		const width = this.canvas.width;
 		const height = this.canvas.height;
 		
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
-		ctx.fillStyle = '#0000D0';
+		//ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.fillStyle = '#303030';
 		ctx.fillRect(0, 0, width, height);
 		
-		const cx = (width/2) - camera.x;
-		const cy = (height/2) - camera.y;
-		const cs = camera.scale;
+		lightCtx.globalCompositeOperation = 'source-over';
+		lightCtx.setTransform(1, 0, 0, 1, 0, 0);
+		lightCtx.fillStyle = scene.as3d.ambientLightColor.toString();
+		lightCtx.fillRect(0, 0, width, height);
+		lightCtx.globalCompositeOperation = 'lighter';
 		
 		const polygons = scene.polygons;
 		for(let i = 0; i < polygons.length; ++i) {
-			var polygon = polygons[i];
-			this.drawPolygon(polygons[i], cx, cy, cs);
+			let polygon = polygons[i];
+			
+			this.drawPolygon(polygon, camera);
+			
+			this.lightPolygon(polygon, scene.as3d.staticLights, camera);
+			if(dynamicLights) {
+				this.lightPolygon(polygon, scene.as3d.dynamicLights, camera);
+			}
 		}
+		
+		ctx.globalCompositeOperation = 'multiply';
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.drawImage(this.lightCanvas, 0, 0);
 	}
 	
-	private drawPolygon(polygon: Polygon2, cx: number, cy: number, cs: number): void {
+	private drawPolygon(polygon: Polygon2, camera: Camera): void {
 		const ctx = this.ctx;
-		const points = polygon.points;
 		
-		ctx.setTransform(cs, 0, 0, cs, cx, cy);
+		camera.setTransform(ctx);
+		polygon.drawPath(ctx);
 		
-		ctx.beginPath();
-		var v = points[0];
-		ctx.moveTo(v.x, v.y);
-		for(var i = 1; i < points.length; ++i) {
-			v = points[i];
-			ctx.lineTo(v.x, v.y);
-		}
-		ctx.closePath();
-		
-		var tf = polygon.textureTransform;
-		ctx.setTransform(cs*tf.a, cs*tf.b, cs*tf.c, cs*tf.d, tf.x + cx, tf.y + cy);
-		
+		polygon.uvTransform.apply(ctx, camera, TEXTURE_SCALE);
 		ctx.fillStyle = this.textures[polygon.as3d.texture];
 		ctx.fill();
 		
-		ctx.setTransform(cs, 0, 0, cs, cx, cy);
+		camera.setTransform(ctx);
 		ctx.stroke();
+	}
+	
+	private lightPolygon(polygon: Polygon2, lights: ReadonlyArray<Light>, camera: Camera): void {
+		const lightCtx = this.lightCtx;
+		for(let i = 0; i < lights.length; ++i) {
+			lights[i].drawForPolygon(lightCtx, camera, polygon);
+		}
 	}
 }

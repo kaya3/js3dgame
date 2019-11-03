@@ -45,7 +45,7 @@ class Vector3 {
 	public cameraOrder(): number {
 		return sqrt3 * (this.x - this.y) + sqrt2 * this.z;
 	}
-	public equals(other: Vector3, eps=1e-10): boolean {
+	public equals(other: Vector3, eps=1e-5): boolean {
 		return Math.abs(this.x - other.x) < eps
 			&& Math.abs(this.y - other.y) < eps
 			&& Math.abs(this.z - other.z) < eps;
@@ -75,11 +75,16 @@ class Vector2 {
 
 class Polygon3 {
 	public readonly normal: Vector3;
+	public readonly u: Vector3;
+	public readonly v: Vector3;
+	
 	public readonly cameraOrder: number;
 	public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: TextureName) {
-		this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
+		const n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
+		var u = n.cross(Vector3.Z_UNIT);
+		this.u = u = (u.equals(Vector3.ZERO) ? Vector3.X_UNIT : u.unit());
+		this.v = n.cross(u).unit();
 		
-		var points = this.points;
 		var m = points[0].cameraOrder();
 		for(var i = 1; i < points.length; ++i) {
 			m = Math.min(points[i].cameraOrder(), m);
@@ -95,39 +100,55 @@ class Polygon3 {
 }
 
 class Polygon2 {
-	public readonly textureTransform: TextureTransform;
+	public readonly uvTransform: UVTransform;
 	public constructor(public readonly points: ReadonlyArray<Vector2>, public readonly as3d: Polygon3) {
-		var u3 = as3d.normal.cross(Vector3.Z_UNIT);
-		if(u3.equals(Vector3.ZERO)) { u3 = Vector3.X_UNIT; } else { u3 = u3.unit(); }
-		const u = u3.project2d();
-		const v = as3d.normal.cross(u3).unit().project2d();
+		const u = as3d.u.project2d();
+		const v = as3d.v.project2d();
 		const p = points[0];
 		
-		this.textureTransform = {
-			a: u.x * TEXTURE_SCALE,
-			b: u.y * TEXTURE_SCALE,
-			c: v.x * TEXTURE_SCALE,
-			d: v.y * TEXTURE_SCALE,
-			x: p.x,
-			y: p.y
-		};
+		this.uvTransform = new UVTransform(
+			u.x, u.y,
+			v.x, v.y,
+			p.x, p.y
+		);
+	}
+	
+	public drawPath(ctx: CanvasRenderingContext2D): void {
+		const points = this.points;
+		ctx.beginPath();
+		var v = points[0];
+		ctx.moveTo(v.x, v.y);
+		for(var i = 1; i < points.length; ++i) {
+			v = points[i];
+			ctx.lineTo(v.x, v.y);
+		}
+		ctx.closePath();
 	}
 }
 
 class Scene3 {
-	public constructor(private readonly polygons: Array<Polygon3> = []) {}
-
-	public addPolygon(polygon: Polygon3): void {
-		this.polygons.push(polygon);
+	public readonly ambientLightColor: RGB;
+	public readonly staticLights: ReadonlyArray<Light>;
+	public readonly dynamicLights: ReadonlyArray<Light>;
+	
+	public constructor(private readonly polygons: ReadonlyArray<Polygon3> = [], lights: Array<Light>) {
+		let amb = lights.filter(x => x.kind === 'ambient')[0] as AmbientLight|undefined;
+		this.ambientLightColor = (amb ? amb.color : new RGB(0, 0, 0));
+		this.staticLights = lights.filter(x => x.kind === 'static');
+		this.dynamicLights = lights.filter(x => x.kind === 'dynamic');
 	}
-
+	
 	public project2d(): Scene2 {
-		return new Scene2(this.polygons.map(p => p.project2d()));
+		return new Scene2(
+			this.polygons.map(p => p.project2d()),
+			this
+		);
 	}
 }
 
 class Scene2 {
-	public constructor(public readonly polygons: Array<Polygon2>) {
-		polygons.sort((p,q) => p.as3d.cameraOrder - q.as3d.cameraOrder);
+	public readonly polygons: ReadonlyArray<Polygon2>;
+	public constructor(polygons: Array<Polygon2>, public readonly as3d: Scene3) {
+		this.polygons = polygons.sort((p,q) => p.as3d.cameraOrder - q.as3d.cameraOrder);
 	}
 }

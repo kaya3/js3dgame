@@ -4,15 +4,15 @@ class Game {
 	public readonly camera: Camera;
 	
 	public constructor(public scene: Scene2) {
-		this.camera = { x: 0, y: 0, scale: 1 };
+		this.camera = new Camera();
 	}
 	
-	public tick(dt: number, keys: { [k: number]: boolean }): void {
+	public tick(dt: number, keys: { [k: number]: number }): void {
 		var dc = dt * CAMERA_SPEED;
-		if(keys[37]) { this.camera.x -= dc; } // left
-		if(keys[38]) { this.camera.y -= dc; } // up
-		if(keys[39]) { this.camera.x += dc; } // right
-		if(keys[40]) { this.camera.y += dc; } // down
+		this.camera.translate(
+			(keys[39] - keys[37])*dc, // right - left
+			(keys[40] - keys[38])*dc, // down - up
+		);
 	}
 }
 
@@ -21,34 +21,41 @@ function main() {
 		return new Vector3(x, y, z);
 	}
 	
-	const scene: Scene2 = new Scene3([
-		new Polygon3([ vec(0, 0, 0), vec(0, 3, 0), vec(5, 3, 0), vec(5, 0, 0) ], 'floor'),
-		new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 3, 0) ], 'floor'),
+	const polys = [
+		new Polygon3([ vec(0, 0, 0), vec(5, 0, 0), vec(5, 3, 0), vec(0, 3, 0) ], 'floor'),
+		new Polygon3([ vec(0, 3, 0), vec(5, 3, 0), vec(5, 5, 0.5), vec(0, 5, 0.5) ], 'floor'),
 		new Polygon3([ vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0) ], 'wall'),
 		new Polygon3([ vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1) ], 'wall'),
 		new Polygon3([ vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0) ], 'wall'),
 		new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0) ], 'wall'),
-	]).project2d();
+	];
+	const lights = [
+		new AmbientLight(new RGB(50, 50, 50)),
+		new DirectionalLight(vec(3, -1, 5), new RGB(50, 60, 40)),
+		new PointLight(vec(4, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
+	];
+	const scene: Scene2 = new Scene3(polys, lights).project2d();
+	const game = new Game(scene);
 	
-	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-	function resizeCanvas() {
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
-	}
-	window.addEventListener('resize', resizeCanvas);
-	resizeCanvas();
-	
-	const keys = Object.create(null);
+	const keys: { [k: number]: number } = Object.create(null);
+	keys[37] = keys[38] = keys[39] = keys[40] = 0;
 	window.addEventListener('keydown', function(e) {
-		keys[e.keyCode] = true;
+		keys[e.keyCode] = 1;
 	});
 	window.addEventListener('keyup', function(e) {
-		keys[e.keyCode] = false;
+		keys[e.keyCode] = 0;
 	});
 	
 	loadTextures(function(imgs) {
-		const game = new Game(scene);
-		const renderer = new Renderer(canvas, imgs);
+		const renderer = new Renderer(imgs);
+		
+		function resizeCanvas() {
+			let w = window.innerWidth, h = window.innerHeight;
+			game.camera.resizeWindow(w, h);
+			if(renderer) { renderer.resizeWindow(w, h); }
+		}
+		window.addEventListener('resize', resizeCanvas);
+		resizeCanvas();
 		
 		var lastTime: DOMHighResTimeStamp|undefined;
 		function tick(time?: DOMHighResTimeStamp) {
@@ -57,7 +64,7 @@ function main() {
 			}
 			lastTime = time;
 			
-			renderer.draw(game.scene, game.camera);
+			renderer.draw(game.scene, game.camera, true);
 			window.requestAnimationFrame(tick);
 		}
 		tick();
