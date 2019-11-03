@@ -18,7 +18,7 @@ const SCENE_DATA = (function (): SceneData {
     }
 
     return {
-        "faces": [
+        faces: [
             // Room 1
             { label: "C", isWalkable: true, texture: "floor", coords: [v(0, 0, 0), v(6, 0, 0), v(6, 10, 0), v(0, 10, 0)] },
             { label: "A", isWalkable: false, texture: "wall", coords: [v(0, 0, 0), v(0, 0, 1), v(6, 0, 1), v(6, 0, 0)] },

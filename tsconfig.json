@@ -8,6 +8,7 @@
   },
   "files": [
 	"src/util.ts",
+	"src/camera.ts",
 	"src/game.ts",
 	"src/geometry.ts",
 	"src/renderer.ts",
