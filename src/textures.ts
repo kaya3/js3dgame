@@ -2,7 +2,7 @@
 const TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
-    'stick_figure': 'textures/figure.jpg',
+    'stick_figure': 'textures/figure.png',
 };
 const TEXTURE_SCALE = 0.005;
 
