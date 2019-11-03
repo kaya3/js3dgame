@@ -38,7 +38,7 @@ function main() {
 			}
 			lastTime = time;
 
-			renderer.draw(game.scene, game.camera, SCENE_DATA.figures, true);
+			renderer.draw(game.scene, game.camera, SCENE_DATA.player, true);
 			window.requestAnimationFrame(tick);
 		}
 		tick();

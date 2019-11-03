@@ -6,7 +6,7 @@ type SceneData = {
         coords: Array<Vector3>
     }>,
     lights: Array<Light>,
-    figures: Array<Figure>
+    player: Sprite
 };
 
 /**
@@ -47,8 +47,6 @@ const SCENE_DATA = (function (): SceneData {
             new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),
         ],
 
-        figures: [
-            new Figure(v(5, 2, 0), "stick_figure")
-        ]
+        player: new Sprite(v(5, 2, 0), "stick_figure")
     };
 })();

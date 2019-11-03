@@ -10,8 +10,8 @@
 	"src/renderer.ts",
 	"src/textures.ts",
 	"src/light.ts",
-    "src/figure.ts",
+    "src/sprite.ts",
     "src/scene-data.ts",
-	"src/main.ts",
+	"src/main.ts"
   ]
 }

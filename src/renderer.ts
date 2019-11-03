@@ -63,7 +63,7 @@ class Renderer {
 		this.canvas.height = this.lightCanvas.height = height;
 	}
 
-	public draw(scene: Scene2, camera: Camera, figures:Figure[], dynamicLights: boolean) {
+	public draw(scene: Scene2, camera: Camera, player:Sprite, dynamicLights: boolean) {
 		const ctx = this.ctx;
 		const lightCtx = this.lightCtx;
 
@@ -91,8 +91,8 @@ class Renderer {
 			}
 		}
 
-		// Draw figures
-		figures.forEach(figure => this.drawFigure(figure));
+		// Draw player
+		this.drawSprite(player);
 
 
 		// Draw all??
@@ -101,15 +101,15 @@ class Renderer {
 		ctx.drawImage(this.lightCanvas, 0, 0);
 	}
 
-	private drawFigure(figure: Figure) {
-		var img = this.images[figure.sprite];
+	private drawSprite(sprite: Sprite) {
+		var img = this.images[sprite.sprite];
 		// TODO: get from image
 		var spriteWidth  = 40,
 			spriteHeight = 64,
 			pixelsLeft   = 0,
 			pixelsTop    = 0;
 
-		var pos = figure.position.project2d();
+		var pos = sprite.position.project2d();
 		
 		this.ctx.drawImage(
 			img,

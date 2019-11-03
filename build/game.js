@@ -226,8 +226,7 @@ var Renderer = /** @class */ (function () {
         this.canvas.width = this.lightCanvas.width = width;
         this.canvas.height = this.lightCanvas.height = height;
     };
-    Renderer.prototype.draw = function (scene, camera, figures, dynamicLights) {
-        var _this = this;
+    Renderer.prototype.draw = function (scene, camera, player, dynamicLights) {
         var ctx = this.ctx;
         var lightCtx = this.lightCtx;
         var width = this.canvas.width;
@@ -250,18 +249,18 @@ var Renderer = /** @class */ (function () {
                 this.lightPolygon(polygon, scene.as3d.dynamicLights, camera);
             }
         }
-        // Draw figures
-        figures.forEach(function (figure) { return _this.drawFigure(figure); });
+        // Draw player
+        this.drawSprite(player);
         // Draw all??
         ctx.globalCompositeOperation = 'multiply';
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(this.lightCanvas, 0, 0);
     };
-    Renderer.prototype.drawFigure = function (figure) {
-        var img = this.images[figure.sprite];
+    Renderer.prototype.drawSprite = function (sprite) {
+        var img = this.images[sprite.sprite];
         // TODO: get from image
         var spriteWidth = 40, spriteHeight = 64, pixelsLeft = 0, pixelsTop = 0;
-        var pos = figure.position.project2d();
+        var pos = sprite.position.project2d();
         this.ctx.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, pos.x, pos.y, spriteWidth, spriteHeight);
     };
     Renderer.prototype.drawPolygon = function (polygon, camera) {
@@ -286,7 +285,7 @@ var Renderer = /** @class */ (function () {
 var TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
-    'stick_figure': 'textures/figure.png'
+    'stick_figure': 'textures/figure.png',
 };
 var TEXTURE_SCALE = 0.005;
 var UVTransform = /** @class */ (function () {
@@ -412,19 +411,19 @@ var PointLight = /** @class */ (function () {
     };
     return PointLight;
 }());
-var Figure = /** @class */ (function () {
-    function Figure(position, sprite) {
+var Sprite = /** @class */ (function () {
+    function Sprite(position, sprite) {
         this.position = position;
         this.sprite = sprite;
     }
-    Figure.prototype.walk = function (dx, dy) {
+    Sprite.prototype.walk = function (dx, dy) {
         var x = this.position.x + dx;
         var y = this.position.y + dy;
         var z = this.position.z;
         // TODO: clip z to floor, don't let player walk through wall
         this.position = new Vector3(x, y, z);
     };
-    return Figure;
+    return Sprite;
 }());
 /**
  * Data to represent the map.
@@ -459,9 +458,7 @@ var SCENE_DATA = (function () {
             new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
             new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),
         ],
-        figures: [
-            new Figure(v(5, 2, 0), "stick_figure")
-        ]
+        player: new Sprite(v(5, 2, 0), "stick_figure")
     };
 })();
 function main() {
@@ -499,7 +496,7 @@ function main() {
                 game.tick(time - lastTime, keys);
             }
             lastTime = time;
-            renderer.draw(game.scene, game.camera, SCENE_DATA.figures, true);
+            renderer.draw(game.scene, game.camera, SCENE_DATA.player, true);
             window.requestAnimationFrame(tick);
         }
         tick();
