@@ -83,7 +83,7 @@ class Renderer {
         // drawImage draws an image, with the given x/y coordinates being the top-left corner
         // we want the middle of the base of the image
 
-        const pos_topLeft_2d = sprite.position.project2d();
+        const pos_topLeft_2d = sprite.pos.project2d();
         const pos_bottomCenter_2d = pos_topLeft_2d.add(new Vector3(-(spriteWidth / 2), -(spriteHeight), 0));
 
         this.ctx.drawImage(

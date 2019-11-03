@@ -95,7 +95,7 @@ class Polygon3 {
     public readonly v: Vector3;
     public readonly cameraOrder: number;
 
-    public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: ImageName) {
+    public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: ImageName, public readonly isWalkable: boolean) {
         const n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
         let u = n.cross(Vector3.Z_UNIT);
         this.u = u = (u.isZero() ? Vector3.X_UNIT : u.unit());
@@ -113,6 +113,11 @@ class Polygon3 {
             this.points.map(v => v.project2d()),
             this
         );
+    }
+
+    public projectZ(x: number, y: number): number {
+        let n = this.normal;
+        return (n.dot(this.points[0]) - x * n.x - y * n.y) / n.z;
     }
 
     public contains(point: Vector3): boolean {
@@ -149,33 +154,5 @@ class Polygon2 {
 
     public contains(point: Vector2): boolean {
         return Util.isPointInPolygon2D(this.points, point);
-    }
-}
-
-class Scene3 {
-    public readonly ambientLightColor: RGB;
-    public readonly staticLights: ReadonlyArray<Light>;
-    public readonly dynamicLights: ReadonlyArray<Light>;
-
-    public constructor(private readonly polygons: ReadonlyArray<Polygon3> = [], lights: Array<Light>) {
-        let amb = lights.filter(x => x.kind === 'ambient')[0] as AmbientLight | undefined;
-        this.ambientLightColor = (amb ? amb.color : new RGB(0, 0, 0));
-        this.staticLights = lights.filter(x => x.kind === 'static');
-        this.dynamicLights = lights.filter(x => x.kind === 'dynamic');
-    }
-
-    public project2d(): Scene2 {
-        return new Scene2(
-            this.polygons.map(p => p.project2d()),
-            this
-        );
-    }
-}
-
-class Scene2 {
-    public readonly polygons: ReadonlyArray<Polygon2>;
-
-    public constructor(polygons: Array<Polygon2>, public readonly as3d: Scene3) {
-        this.polygons = polygons.sort((p, q) => p.as3d.cameraOrder - q.as3d.cameraOrder);
     }
 }

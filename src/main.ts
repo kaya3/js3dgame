@@ -1,14 +1,9 @@
-function main() {
-    // Map the given input data into polygons
-    const polygons: Polygon3[] = SCENE_DATA.faces.map(face => {
-        return new Polygon3(face.coords, face.texture);
-    });
-
-    // Insert all polygons into the scene and project to 2d
-    const scene: Scene2 = new Scene3(polygons, SCENE_DATA.lights).project2d();
+function main(sceneData: SceneData) {
+    // construct the scene
+    const scene: Scene2 = new Scene3(sceneData).project2d();
 
     const keys: { [k: number]: number } = Object.create(null);
-    keys[37] = keys[38] = keys[39] = keys[40] = 0;
+    for(let i = 0; i < 256; ++i) { keys[i] = 0; }
     window.addEventListener('keydown', function (e) {
         keys[e.keyCode] = 1;
     });
@@ -33,14 +28,13 @@ function main() {
         resizeCanvas();
 
         let lastTime: DOMHighResTimeStamp | undefined;
-
         function tick(time?: DOMHighResTimeStamp) {
             if (time && lastTime) {
                 game.tick(time - lastTime, keys);
             }
             lastTime = time;
 
-            renderer.draw(game.scene, game.camera, SCENE_DATA.player, true);
+            renderer.draw(game.scene, game.camera, game.player, true);
             window.requestAnimationFrame(tick);
         }
 

@@ -1,18 +1,19 @@
+type OnMoveCallback = (pos: Vector3) => void;
+
 class Sprite {
-    /**
-     *
-     * @param position the position of the top-left corner of the image
-     * @param sprite
-     */
-    constructor(public position: Vector3, public readonly sprite: ImageName) {}
+    private readonly onMoveCallbacks: Array<OnMoveCallback> = [];
 
-    public move(dx: number, dy: number): void {
-        let x = this.position.x + dx;
-        let y = this.position.y + dy;
-        let z = this.position.z;
+    constructor(public pos: Vector3, public readonly sprite: ImageName) {}
 
-        // TODO: clip z to floor, don't let player walk through wall
+    public setPos(pos: Vector3): void {
+        this.pos = pos;
+        let callbacks = this.onMoveCallbacks;
+        for(let i = 0; i < callbacks.length; ++i) {
+            callbacks[i](pos);
+        }
+    }
 
-        this.position = new Vector3(x, y, z);
+    public onMove(callback: OnMoveCallback): void {
+        this.onMoveCallbacks.push(callback);
     }
 }

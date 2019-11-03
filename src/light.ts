@@ -3,13 +3,7 @@ class RGB {
 
     public toString(alpha = 1): string {
         let r = this.r, g = this.g, b = this.b;
-        if (alpha > 1) {
-            /*let factor = 1/alpha;
-            r = 255 - (255 - r)*factor;
-            g = 255 - (255 - g)*factor;
-            b = 255 - (255 - b)*factor;*/
-            alpha = 1;
-        }
+        alpha = Math.min(alpha, 1);
         return ['rgba(', r, ',', g, ',', b, ',', alpha, ')'].join('');
     }
 }
@@ -53,7 +47,7 @@ class DirectionalLight implements Light {
 
 class PointLight implements Light {
     public constructor(
-        private readonly pos: Vector3,
+        public pos: Vector3,
         private readonly color: RGB,
         private readonly intensity: number,
         public readonly kind: 'static' | 'dynamic'
@@ -86,7 +80,8 @@ class PointLight implements Light {
             for (let i = 0; i < COLOR_STOPS; ++i) {
                 let p = i * i / (COLOR_STOPS * COLOR_STOPS);
                 let r = MAX_R * p;
-                let stopIntensity = this.intensity * distance / Math.pow(d2 + r * r, 1.5);
+                let denominator = Math.pow(d2 + r * r, 1.5);
+                let stopIntensity = this.intensity * distance / (denominator + 1e-5); // add epsilon to avoid div0
                 gradient.addColorStop(p, this.color.toString(stopIntensity));
             }
             gradient.addColorStop(1, this.color.toString(0));
