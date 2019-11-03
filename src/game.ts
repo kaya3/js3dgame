@@ -1,5 +1,5 @@
 const KEYCODE_PAGE_UP = 33;
-const KEYCODE_PAGE_DOWN = 33;
+const KEYCODE_PAGE_DOWN = 34;
 const KEYCODE_W = 87;
 const KEYCODE_A = 65;
 const KEYCODE_S = 83;
@@ -8,8 +8,8 @@ const KEYCODE_D = 68;
 class Game {
     public static CAMERA_SPEED = 0.4;
     public static CAMERA_ZOOM_SPEED = 0.001;
-    public static MAX_ZOOM = 10;
-    public static MIN_ZOOM = 0.5;
+    public static MAX_ZOOM = 4;
+    public static MIN_ZOOM = 0.25;
 
     public readonly camera: Camera;
 
