@@ -46,9 +46,10 @@ class Vector3 {
 		return sqrt3 * (this.x - this.y) + sqrt2 * this.z;
 	}
 	public equals(other: Vector3, eps=1e-5): boolean {
-		return Math.abs(this.x - other.x) < eps
-			&& Math.abs(this.y - other.y) < eps
-			&& Math.abs(this.z - other.z) < eps;
+		return this.subtract(other).isZero(eps);
+	}
+	public isZero(eps=1e-5): boolean {
+		return Math.abs(this.x) < eps && Math.abs(this.y) < eps && Math.abs(this.z) < eps;
 	}
 }
 
@@ -82,7 +83,7 @@ class Polygon3 {
 	public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: TextureName) {
 		const n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
 		var u = n.cross(Vector3.Z_UNIT);
-		this.u = u = (u.equals(Vector3.ZERO) ? Vector3.X_UNIT : u.unit());
+		this.u = u = (u.isZero() ? Vector3.X_UNIT : u.unit());
 		this.v = n.cross(u).unit();
 		
 		var m = points[0].cameraOrder();

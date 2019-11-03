@@ -48,6 +48,9 @@ function main() {
 		const game = new Game(scene);
 		const renderer = new Renderer(imgs);
 		
+		// TODO: camera follows player
+		game.camera.translate(500,-200);
+		
 		function resizeCanvas() {
 			let w = window.innerWidth, h = window.innerHeight;
 			game.camera.resizeWindow(w, h);

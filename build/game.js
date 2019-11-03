@@ -91,9 +91,11 @@ var Vector3 = /** @class */ (function () {
     };
     Vector3.prototype.equals = function (other, eps) {
         if (eps === void 0) { eps = 1e-5; }
-        return Math.abs(this.x - other.x) < eps
-            && Math.abs(this.y - other.y) < eps
-            && Math.abs(this.z - other.z) < eps;
+        return this.subtract(other).isZero(eps);
+    };
+    Vector3.prototype.isZero = function (eps) {
+        if (eps === void 0) { eps = 1e-5; }
+        return Math.abs(this.x) < eps && Math.abs(this.y) < eps && Math.abs(this.z) < eps;
     };
     Vector3.ZERO = new Vector3(0, 0, 0);
     Vector3.X_UNIT = new Vector3(1, 0, 0);
@@ -131,7 +133,7 @@ var Polygon3 = /** @class */ (function () {
         this.texture = texture;
         var n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
         var u = n.cross(Vector3.Z_UNIT);
-        this.u = u = (u.equals(Vector3.ZERO) ? Vector3.X_UNIT : u.unit());
+        this.u = u = (u.isZero() ? Vector3.X_UNIT : u.unit());
         this.v = n.cross(u).unit();
         var m = points[0].cameraOrder();
         for (var i = 1; i < points.length; ++i) {
@@ -338,7 +340,15 @@ var RGB = /** @class */ (function () {
     }
     RGB.prototype.toString = function (alpha) {
         if (alpha === void 0) { alpha = 1; }
-        return ['rgba(', this.r | 0, ',', this.g | 0, ',', this.b | 0, ',', alpha, ')'].join('');
+        var r = this.r, g = this.g, b = this.b;
+        if (alpha > 1) {
+            /*let factor = 1/alpha;
+            r = 255 - (255 - r)*factor;
+            g = 255 - (255 - g)*factor;
+            b = 255 - (255 - b)*factor;*/
+            alpha = 1;
+        }
+        return ['rgba(', r, ',', g, ',', b, ',', alpha, ')'].join('');
     };
     return RGB;
 }());
@@ -377,22 +387,31 @@ var PointLight = /** @class */ (function () {
         this.kind = kind;
     }
     PointLight.prototype.drawForPolygon = function (ctx, camera, polygon) {
+        var MAX_D = 10;
+        var MAX_R = 10;
+        var COLOR_STOPS = 10;
         var normal = polygon.as3d.normal;
         var uvOrigin = polygon.as3d.points[0];
         var distance = this.pos.subtract(uvOrigin).dot(normal);
-        if (distance >= 0) {
+        if (distance >= 0 && distance < MAX_D) {
             var projected = this.pos.subtract(normal.scale(distance));
             var uvOffset = projected.subtract(uvOrigin);
             var u = polygon.as3d.u.dot(uvOffset);
             var v = polygon.as3d.v.dot(uvOffset);
-            ctx.save();
             camera.setTransform(ctx);
             polygon.drawPath(ctx);
-            ctx.clip();
             polygon.uvTransform.apply(ctx, camera);
-            ctx.fillStyle = this.color.toString();
-            ctx.fillRect(u - 0.25, v - 0.25, 0.5, 0.5);
-            ctx.restore();
+            var gradient = ctx.createRadialGradient(u, v, 0, u, v, MAX_R);
+            var d2 = distance * distance;
+            for (var i = 0; i < COLOR_STOPS; ++i) {
+                var p = i * i / (COLOR_STOPS * COLOR_STOPS);
+                var r = MAX_R * p;
+                var stopIntensity = this.intensity * distance / Math.pow(d2 + r * r, 1.5);
+                gradient.addColorStop(p, this.color.toString(stopIntensity));
+            }
+            gradient.addColorStop(1, this.color.toString(0));
+            ctx.fillStyle = gradient;
+            ctx.fill();
         }
     };
     return PointLight;
@@ -450,7 +469,7 @@ var SCENE_DATA = {
     lights: [
         new AmbientLight(new RGB(50, 50, 50)),
         new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
-        new PointLight(new Vector3(5, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
+        new PointLight(new Vector3(5, 2, 0.5), new RGB(255, 255, 200), 1, 'static'),
     ]
 };
 var FIGURES_DATA = {
@@ -502,6 +521,8 @@ function main() {
     loadTextures(function (imgs) {
         var game = new Game(scene);
         var renderer = new Renderer(imgs);
+        // TODO: camera follows player
+        game.camera.translate(500, -200);
         function resizeCanvas() {
             var w = window.innerWidth, h = window.innerHeight;
             game.camera.resizeWindow(w, h);
