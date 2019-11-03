@@ -21,7 +21,7 @@ class Util {
     }
 
     public static convertInputFigureJsonToPolygonArray(figureData: FigureData): Figure[] {
-        return figureData.faces.map(faceJson => {
+        return figureData.figures.map(faceJson => {
             //console.info('faceJson', faceJson);
             const coord = faceJson.coords;
             return new Figure(coord.x, coord.y, coord.z, coord.scale);

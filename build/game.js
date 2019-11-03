@@ -21,7 +21,7 @@ var Util = /** @class */ (function () {
         });
     };
     Util.convertInputFigureJsonToPolygonArray = function (figureData) {
-        return figureData.faces.map(function (faceJson) {
+        return figureData.figures.map(function (faceJson) {
             //console.info('faceJson', faceJson);
             var coord = faceJson.coords;
             return new Figure(coord.x, coord.y, coord.z, coord.scale);
@@ -287,7 +287,7 @@ var Renderer = /** @class */ (function () {
 var TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
-    'stick-figure': 'textures/figure.png'
+    'stick-figure': 'textures/figure.png',
 };
 var TEXTURE_SCALE = 0.005;
 var UVTransform = /** @class */ (function () {
@@ -418,10 +418,7 @@ var Figure = /** @class */ (function () {
     return Figure;
 }());
 /**
- * Data to represent the map
- *
- * Note the polygons are drawn in the order shown --
- * thus, if you include the floor after the wall, the floor will draw on top of the walls
+ * Data to represent the map.
  */
 var SCENE_DATA = {
     "faces": [
@@ -453,8 +450,12 @@ var SCENE_DATA = {
         new PointLight(new Vector3(5, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
     ]
 };
+/**
+ * Data to represent mobile / dynamic elements
+ * TODO: Use a sprite (not a polygon to represent players) and rename
+ */
 var FIGURES_DATA = {
-    "faces": [
+    figures: [
         { label: "Player 1", texture: "stick-figure", coords: { x: 4, y: 5, z: 0.1, scale: 1 } }
     ]
 };

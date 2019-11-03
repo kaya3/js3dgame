@@ -7,15 +7,12 @@ type SceneData = {
 };
 
 type FigureData = {
-    faces: Array<{ label?: string, texture: TextureName, coords: FigureDataVector }>
+    figures: Array<{ label?: string, texture: TextureName, coords: FigureDataVector }>
 };
 
 
 /**
- * Data to represent the map
- *
- * Note the polygons are drawn in the order shown --
- * thus, if you include the floor after the wall, the floor will draw on top of the walls
+ * Data to represent the map.
  */
 const SCENE_DATA: SceneData = {
     "faces": [
@@ -52,9 +49,12 @@ const SCENE_DATA: SceneData = {
 	]
 };
 
-
+/**
+ * Data to represent mobile / dynamic elements
+ * TODO: Use a sprite (not a polygon to represent players) and rename
+ */
 const FIGURES_DATA: FigureData = {
-    "faces": [
+    figures: [
         {label: "Player 1", texture: "stick-figure", coords: {x: 4, y: 5, z: 0.1, scale: 1}}
     ]
 };
