@@ -9,13 +9,14 @@
   "files": [
 	"src/util.ts",
 	"src/camera.ts",
-	"src/game.ts",
 	"src/geometry.ts",
 	"src/renderer.ts",
 	"src/textures.ts",
 	"src/light.ts",
     "src/sprite.ts",
+	"src/player.ts",
     "src/scene-data.ts",
+	"src/game.ts",
 	"src/main.ts"
   ]
 }

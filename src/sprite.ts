@@ -1,7 +1,7 @@
 class Sprite {
 	constructor(public position: Vector3, public readonly sprite: ImageName) {}
 	
-	public walk(dx: number, dy: number): void {
+	public move(dx: number, dy: number): void {
 		let x = this.position.x + dx;
 		let y = this.position.y + dy;
 		let z = this.position.z;

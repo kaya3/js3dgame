@@ -35,7 +35,7 @@ class Renderer {
 		this.canvas.height = this.lightCanvas.height = height;
 	}
 
-	public draw(scene: Scene2, camera: Camera, player:Sprite, dynamicLights: boolean) {
+	public draw(scene: Scene2, camera: Camera, player:Player, dynamicLights: boolean) {
 		const ctx = this.ctx;
 		const lightCtx = this.lightCtx;
 
