@@ -1,4 +1,4 @@
-const sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 50;
+const sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 20;
 
 class Vector3 {
 	public static readonly ZERO = new Vector3(0, 0, 0);
@@ -89,7 +89,7 @@ class Polygon3 {
 		for(var i = 1; i < points.length; ++i) {
 			m = Math.min(points[i].cameraOrder(), m);
 		}
-		this.cameraOrder = m;
+		this.cameraOrder = -m;
 	}
 	public project2d(): Polygon2 {
 		return new Polygon2(

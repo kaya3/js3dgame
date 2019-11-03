@@ -1,22 +1,5 @@
-const CAMERA_SPEED = 0.25;
-
-class Game {
-	public readonly camera: Camera;
-	
-	public constructor(public scene: Scene2) {
-		this.camera = new Camera();
-	}
-	
-	public tick(dt: number, keys: { [k: number]: number }): void {
-		var dc = dt * CAMERA_SPEED;
-		this.camera.translate(
-			(keys[39] - keys[37])*dc, // right - left
-			(keys[40] - keys[38])*dc, // down - up
-		);
-	}
-}
-
 function main() {
+	/*
 	function vec(x: number, y: number, z: number): Vector3 {
 		return new Vector3(x, y, z);
 	}
@@ -37,6 +20,21 @@ function main() {
 	const scene: Scene2 = new Scene3(polys, lights).project2d();
 	const game = new Game(scene);
 	
+	*/
+	
+	// Map the given input data into polygons and vectors
+	const environment: Polygon3[] = Util.convertInputSceneJsonToPolygonArray(SCENE_DATA);
+	const figures: Figure[] = Util.convertInputFigureJsonToPolygonArray(FIGURES_DATA);
+	const figuresPolygons = figures.map(figure => figure.getPolygon());
+
+	// Combine all the polygons into a single collection
+	let scenePolygons: Polygon3[] = [];
+	scenePolygons.push(...environment);
+	scenePolygons.push(...figuresPolygons);
+
+	// Insert all polygons into the scene and project to 2d
+	const scene: Scene2 = new Scene3(scenePolygons, SCENE_DATA.lights).project2d();
+	
 	const keys: { [k: number]: number } = Object.create(null);
 	keys[37] = keys[38] = keys[39] = keys[40] = 0;
 	window.addEventListener('keydown', function(e) {
@@ -45,8 +43,9 @@ function main() {
 	window.addEventListener('keyup', function(e) {
 		keys[e.keyCode] = 0;
 	});
-	
+
 	loadTextures(function(imgs) {
+		const game = new Game(scene);
 		const renderer = new Renderer(imgs);
 		
 		function resizeCanvas() {
@@ -56,7 +55,7 @@ function main() {
 		}
 		window.addEventListener('resize', resizeCanvas);
 		resizeCanvas();
-		
+
 		var lastTime: DOMHighResTimeStamp|undefined;
 		function tick(time?: DOMHighResTimeStamp) {
 			if(time && lastTime) {

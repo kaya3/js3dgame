@@ -1,5 +1,58 @@
 "use strict";
-var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 50;
+var Util = /** @class */ (function () {
+    function Util() {
+    }
+    Util.limitNumberRange = function (val, min, max) {
+        if (val < min) {
+            return min;
+        }
+        if (val > max) {
+            return max;
+        }
+        return val;
+    };
+    Util.convertInputSceneJsonToPolygonArray = function (sceneData) {
+        return sceneData.faces.map(function (faceJson) {
+            var vecArray = faceJson.coords.map(function (coord) {
+                return new Vector3(coord.x, coord.y, coord.z);
+            });
+            var texture = faceJson.texture;
+            return new Polygon3(vecArray, texture);
+        });
+    };
+    Util.convertInputFigureJsonToPolygonArray = function (figureData) {
+        return figureData.faces.map(function (faceJson) {
+            //console.info('faceJson', faceJson);
+            var coord = faceJson.coords;
+            return new Figure(coord.x, coord.y, coord.z, coord.scale);
+        });
+    };
+    return Util;
+}());
+var CAMERA_SPEED = 0.25;
+var CAMERA_ZOOM_SPEED = 0.001;
+var MAX_ZOOM = 10;
+var MIN_ZOOM = 0.5;
+var Game = /** @class */ (function () {
+    function Game(scene) {
+        this.scene = scene;
+        this.camera = new Camera();
+    }
+    Game.prototype.tick = function (dt, keys) {
+        var dc = dt * CAMERA_SPEED;
+        this.camera.translate((keys[39] - keys[37]) * dc, // right - left
+        (keys[40] - keys[38]) * dc);
+        var dz = dt * CAMERA_ZOOM_SPEED;
+        if (keys[33]) {
+            this.camera.scale = Util.limitNumberRange(this.camera.scale + dz, MIN_ZOOM, MAX_ZOOM);
+        } // page up/zoom in
+        if (keys[34]) {
+            this.camera.scale = Util.limitNumberRange(this.camera.scale - dz, MIN_ZOOM, MAX_ZOOM);
+        } // page down/zoom out
+    };
+    return Game;
+}());
+var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 20;
 var Vector3 = /** @class */ (function () {
     function Vector3(x, y, z) {
         this.x = x;
@@ -84,7 +137,7 @@ var Polygon3 = /** @class */ (function () {
         for (var i = 1; i < points.length; ++i) {
             m = Math.min(points[i].cameraOrder(), m);
         }
-        this.cameraOrder = m;
+        this.cameraOrder = -m;
     }
     Polygon3.prototype.project2d = function () {
         return new Polygon2(this.points.map(function (v) { return v.project2d(); }), this);
@@ -168,7 +221,7 @@ var Renderer = /** @class */ (function () {
         var ctx = this.ctx = canvas.getContext('2d');
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.strokeStyle = 'black';
+        ctx.strokeStyle = 'gray';
         ctx.lineWidth = 1;
         var lc = this.lightCanvas = document.createElement('canvas');
         this.lightCtx = lc.getContext('2d');
@@ -230,9 +283,11 @@ var Renderer = /** @class */ (function () {
     };
     return Renderer;
 }());
+// NOTE: A 404 error on any texture will cause page to fail
 var TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
-    'floor': 'textures/floor-tiles.jpg'
+    'floor': 'textures/floor-tiles.jpg',
+    'stick-figure': 'textures/figure.png'
 };
 var TEXTURE_SCALE = 0.005;
 var UVTransform = /** @class */ (function () {
@@ -342,59 +397,99 @@ var PointLight = /** @class */ (function () {
     };
     return PointLight;
 }());
+var Figure = /** @class */ (function () {
+    function Figure(x, y, z, width) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.width = width;
+        this.texture = "stick-figure";
+    }
+    Figure.prototype.getPolygon = function () {
+        var halfWidth = this.width / 2;
+        var vecArray = [
+            new Vector3(this.x - halfWidth, this.y, this.z),
+            new Vector3(this.x - halfWidth, this.y, this.z + this.width),
+            new Vector3(this.x + halfWidth, this.y, this.z + this.width),
+            new Vector3(this.x + halfWidth, this.y, this.z),
+        ];
+        return new Polygon3(vecArray, this.texture);
+    };
+    return Figure;
+}());
+/**
+ * Data to represent the map
+ *
+ * Note the polygons are drawn in the order shown --
+ * thus, if you include the floor after the wall, the floor will draw on top of the walls
+ */
 var SCENE_DATA = {
     "faces": [
-        { "label": "A", "texture": "wall", "coords": [{ "x": 0, "y": 0, "z": 0 }, { "x": 0, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 0 }] },
-        { "label": "B", "coords": [{ "x": 6, "y": 0, "z": 0 }, { "x": 6, "y": 0, "z": 7 }, { "x": 6, "y": 10, "z": 7 }, { "x": 6, "y": 10, "z": 0 }] },
-        { "label": "C", "coords": [{ "x": 0, "y": 10, "z": 0 }, { "x": 0, "y": 0, "z": 0 }, { "x": 6, "y": 0, "z": 0 }, { "x": 6, "y": 10, "z": 0 }] },
-        { "label": "D", "coords": [{ "x": 0, "y": 10, "z": 0 }, { "x": 0, "y": 0, "z": 0 }, { "x": 0, "y": 0, "z": 7 }, { "x": 0, "y": 10, "z": 7 }] },
-        { "label": "E", "coords": [{ "x": 0, "y": 10, "z": 7 }, { "x": 0, "y": 0, "z": 7 }, { "x": 6, "y": 0, "z": 7 }, { "x": 6, "y": 10, "z": 7 }] },
-        { "label": "F", "coords": [{ "x": 0, "y": 10, "z": 0 }, { "x": 0, "y": 10, "z": 7 }, { "x": 6, "y": 10, "z": 7 }, { "x": 6, "y": 10, "z": 0 }] },
-        { "label": "G", "coords": [{ "x": 2, "y": 17, "z": 0 }, { "x": 2, "y": 10, "z": 0 }, { "x": 2, "y": 10, "z": 7 }, { "x": 4, "y": 15, "z": 7 }] },
-        { "label": "H", "coords": [{ "x": 2, "y": 17, "z": 7 }, { "x": 2, "y": 10, "z": 7 }, { "x": 4, "y": 10, "z": 7 }, { "x": 4, "y": 15, "z": 7 }] },
-        { "label": "P", "coords": [{ "x": 4, "y": 15, "z": 0 }, { "x": 4, "y": 10, "z": 0 }, { "x": 4, "y": 10, "z": 7 }, { "x": 4, "y": 15, "z": 7 }] },
-        { "label": "Q", "coords": [{ "x": 2, "y": 17, "z": 0 }, { "x": 2, "y": 10, "z": 0 }, { "x": 4, "y": 10, "z": 0 }, { "x": 4, "y": 15, "z": 0 }] },
-        { "label": "I", "coords": [{ "x": -4, "y": 17, "z": 0 }, { "x": -4, "y": 17, "z": 7 }, { "x": 2, "y": 17, "z": 7 }, { "x": 2, "y": 17, "z": 0 }] },
-        { "label": "J", "coords": [{ "x": -4, "y": 23, "z": 0 }, { "x": -4, "y": 23, "z": 7 }, { "x": -4, "y": 17, "z": 7 }, { "x": -4, "y": 17, "z": 0 }] },
-        { "label": "K", "coords": [{ "x": -4, "y": 23, "z": 0 }, { "x": -4, "y": 23, "z": 7 }, { "x": 6, "y": 23, "z": 7 }, { "x": 6, "y": 23, "z": 0 }] },
-        { "label": "L", "coords": [{ "x": 6, "y": 15, "z": 0 }, { "x": 6, "y": 15, "z": 7 }, { "x": 6, "y": 23, "z": 7 }, { "x": 6, "y": 23, "z": 0 }] },
-        { "label": "M", "coords": [{ "x": 4, "y": 15, "z": 0 }, { "x": 4, "y": 15, "z": 7 }, { "x": 6, "y": 15, "z": 7 }, { "x": 6, "y": 15, "z": 0 }] },
-        { "label": "N", "coords": [{ "x": -4, "y": 17, "z": 0 }, { "x": 2, "y": 17, "z": 0 }, { "x": 2, "y": 15, "z": 0 }, { "x": 6, "y": 15, "z": 0 }, { "x": 6, "y": 23, "z": 0 }, { "x": -4, "y": 23, "z": 0 }] },
-        { "label": "O", "coords": [{ "x": 2, "y": 10, "z": 0 }, { "x": 4, "y": 10, "z": 0 }, { "x": 4, "y": 15, "z": 0 }, { "x": 2, "y": 15, "z": 0 }] }
+        // Room 1
+        // { label: "C", texture: "floor", coords: [{x:0, y:0, z:0}, {x:6, y:0, z:0}, {x:6, y:10, z:0}, {x:0, y:10, z:0}]},
+        { label: "A", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 6, y: 0, z: 1 }, { x: 6, y: 0, z: 0 }] },
+        { label: "B", texture: "wall", coords: [{ x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 0, z: 1 },] },
+        { label: "D", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: 10, z: 1 }, { x: 0, y: 10, z: 0 }] },
+        { label: "E", texture: "wall", coords: [{ x: 0, y: 10, z: 0 }, { x: 0, y: 10, z: 1 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 10, z: 0 }] },
+        { label: "F", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }] },
+        // Corridor
+        // { label: "O", texture: "floor", coords: [{x:2, y:10, z:0}, {x:4, y:10, z:0},{x:4, y:15, z:1},{x:2, y:15, z:1}]},
+        { label: "G", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 4, y: 15, z: 1 }] },
+        { label: "H", texture: "wall", coords: [{ x: 2, y: 10, z: 0 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 15, z: 2 }, { x: 2, y: 15, z: 1 }] },
+        // Room 2
+        { label: "N", texture: "floor", coords: [{ x: -4, y: 15, z: 1 }, { x: 6, y: 15, z: 1 }, { x: 6, y: 23, z: 1 }, { x: -4, y: 23, z: 1 }] },
+        // { label: "N", texture: "floor", coords: [{x:-4, y:15, z:1}, {x:2, y:15, z:1}, {x:2, y:15, z:1}, {x:6, y:15, z:1}, {x:6, y:23, z:1}, {x:-4, y:23, z:1}]},
+        // { label: "P", texture: "wall", coords: [{x:4, y:15, z:1}, {x:4, y:10, z:1}, {x:4, y:10, z:2}, {x:4, y:15, z:2}]},
+        // { label: "Q", texture: "wall", coords: [{x:2, y:17, z:1}, {x:2, y:10, z:1}, {x:4, y:10, z:1}, {x:4, y:15, z:1}]},
+        { label: "I", texture: "wall", coords: [{ x: -4, y: 15, z: 1 }, { x: -4, y: 15, z: 2 }, { x: 2, y: 15, z: 2 }, { x: 2, y: 15, z: 1 }] },
+        { label: "J", texture: "wall", coords: [{ x: -4, y: 23, z: 1 }, { x: -4, y: 23, z: 2 }, { x: -4, y: 15, z: 2 }, { x: -4, y: 15, z: 1 }] },
+        { label: "K", texture: "wall", coords: [{ x: -4, y: 23, z: 1 }, { x: -4, y: 23, z: 2 }, { x: 6, y: 23, z: 2 }, { x: 6, y: 23, z: 1 }] },
+        { label: "L", texture: "wall", coords: [{ x: 6, y: 15, z: 1 }, { x: 6, y: 15, z: 2 }, { x: 6, y: 23, z: 2 }, { x: 6, y: 23, z: 1 }] },
+        { label: "M", texture: "wall", coords: [{ x: 4, y: 15, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 6, y: 15, z: 2 }, { x: 6, y: 15, z: 1 }] },
+    ],
+    lights: [
+        new AmbientLight(new RGB(50, 50, 50)),
+        new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
     ]
 };
-var CAMERA_SPEED = 0.25;
-var Game = /** @class */ (function () {
-    function Game(scene) {
-        this.scene = scene;
-        this.camera = new Camera();
-    }
-    Game.prototype.tick = function (dt, keys) {
-        var dc = dt * CAMERA_SPEED;
-        this.camera.translate((keys[39] - keys[37]) * dc, // right - left
-        (keys[40] - keys[38]) * dc);
-    };
-    return Game;
-}());
+var FIGURES_DATA = {
+    "faces": [
+        { label: "Player 1", texture: "stick-figure", coords: { x: 4, y: 5, z: 0.1, scale: 1 } }
+    ]
+};
 function main() {
-    function vec(x, y, z) {
+    /*
+    function vec(x: number, y: number, z: number): Vector3 {
         return new Vector3(x, y, z);
     }
-    var polys = [
-        new Polygon3([vec(0, 0, 0), vec(5, 0, 0), vec(5, 3, 0), vec(0, 3, 0)], 'floor'),
-        new Polygon3([vec(0, 3, 0), vec(5, 3, 0), vec(5, 5, 0.5), vec(0, 5, 0.5)], 'floor'),
-        new Polygon3([vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0)], 'wall'),
-        new Polygon3([vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1)], 'wall'),
-        new Polygon3([vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0)], 'wall'),
-        new Polygon3([vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0)], 'wall'),
+    
+    const polys = [
+        new Polygon3([ vec(0, 0, 0), vec(5, 0, 0), vec(5, 3, 0), vec(0, 3, 0) ], 'floor'),
+        new Polygon3([ vec(0, 3, 0), vec(5, 3, 0), vec(5, 5, 0.5), vec(0, 5, 0.5) ], 'floor'),
+        new Polygon3([ vec(5, 0, 0), vec(5, 0, 1), vec(5, 5, 1), vec(5, 5, 0.5), vec(5, 3, 0) ], 'wall'),
+        new Polygon3([ vec(5, 0, 0), vec(0, 0, 0), vec(0, 0, 1), vec(5, 0, 1) ], 'wall'),
+        new Polygon3([ vec(0, 5, 0), vec(0, 5, 0.5), vec(5, 5, 0.5), vec(5, 5, 0) ], 'wall'),
+        new Polygon3([ vec(0, 3, 0), vec(0, 5, 0.5), vec(0, 5, 0) ], 'wall'),
     ];
-    var lights = [
+    const lights = [
         new AmbientLight(new RGB(50, 50, 50)),
         new DirectionalLight(vec(3, -1, 5), new RGB(50, 60, 40)),
         new PointLight(vec(4, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
     ];
-    var scene = new Scene3(polys, lights).project2d();
-    var game = new Game(scene);
+    const scene: Scene2 = new Scene3(polys, lights).project2d();
+    const game = new Game(scene);
+    
+    */
+    // Map the given input data into polygons and vectors
+    var environment = Util.convertInputSceneJsonToPolygonArray(SCENE_DATA);
+    var figures = Util.convertInputFigureJsonToPolygonArray(FIGURES_DATA);
+    var figuresPolygons = figures.map(function (figure) { return figure.getPolygon(); });
+    // Combine all the polygons into a single collection
+    var scenePolygons = [];
+    scenePolygons.push.apply(scenePolygons, environment);
+    scenePolygons.push.apply(scenePolygons, figuresPolygons);
+    // Insert all polygons into the scene and project to 2d
+    var scene = new Scene3(scenePolygons, SCENE_DATA.lights).project2d();
     var keys = Object.create(null);
     keys[37] = keys[38] = keys[39] = keys[40] = 0;
     window.addEventListener('keydown', function (e) {
@@ -404,6 +499,7 @@ function main() {
         keys[e.keyCode] = 0;
     });
     loadTextures(function (imgs) {
+        var game = new Game(scene);
         var renderer = new Renderer(imgs);
         function resizeCanvas() {
             var w = window.innerWidth, h = window.innerHeight;
