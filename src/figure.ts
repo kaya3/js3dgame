@@ -2,34 +2,23 @@ class Figure {
     private canvasPosX: number;
     private canvasPosY: number;
     private canvasPosZ: number;
-    private texture: TextureName;
+    private textureName: ImageName;
 
-    constructor(canvasPosX: number, canvasPosY: number, canvasPosZ: number) {
+    constructor(canvasPosX: number, canvasPosY: number, canvasPosZ: number, textureName : ImageName) {
         this.canvasPosX = canvasPosX;
         this.canvasPosY = canvasPosY;
         this.canvasPosZ = canvasPosZ;
-        this.texture = "stick_figure";
+        this.textureName = textureName;
     }
 
-    drawOn(ctx: CanvasRenderingContext2D) {
-        var spriteWidth  = 40,
-            spriteHeight = 64,
-            pixelsLeft   = 0,
-            pixelsTop    = 0;
+    public getTextureName() : ImageName {
+        return this.textureName;
+    }
 
-        var playerImg = new Image();
-        playerImg.src = TEXTURES[this.texture];
-
-        ctx.drawImage(
-            playerImg,
-            pixelsLeft,
-            pixelsTop,
-            spriteWidth,
-            spriteHeight,
-            this.canvasPosX,
-            this.canvasPosY,
-            spriteWidth,
-            spriteHeight
-        );
+    public getX() {
+        return this.canvasPosX;
+    }
+    public getY() {
+        return this.canvasPosY;
     }
 }

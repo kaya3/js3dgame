@@ -80,7 +80,7 @@ class Polygon3 {
 	public readonly v: Vector3;
 	
 	public readonly cameraOrder: number;
-	public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: TextureName) {
+	public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: ImageName) {
 		const n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
 		var u = n.cross(Vector3.Z_UNIT);
 		this.u = u = (u.isZero() ? Vector3.X_UNIT : u.unit());

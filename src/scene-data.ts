@@ -5,7 +5,7 @@ type SceneData = {
 	faces: Array<{
 	    label?: string,
         is_walkable: boolean,
-        texture: TextureName,
+        texture: ImageName,
         coords: Array<SceneDataVector>
 	}>,
 	lights: Array<Light>
@@ -60,7 +60,7 @@ const SCENE_DATA: SceneData = {
  */
 const FIGURES_DATA: FigureData = {
     figures: [
-        new Figure(250,0,0),
-        new Figure(350,0,0)
+        new Figure(250,0,0, "stick_figure"),
+        new Figure(350,0,0, "stick_figure")
     ]
 };

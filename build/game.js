@@ -188,8 +188,8 @@ var Camera = /** @class */ (function () {
         this.tlY = 0;
         this.width = 0;
         this.height = 0;
-        this.x = 500;
-        this.y = 100;
+        this.x = 0;
+        this.y = 0;
         this.scale = 1;
     }
     Camera.prototype.resizeWindow = function (width, height) {
@@ -210,7 +210,9 @@ var Camera = /** @class */ (function () {
     return Camera;
 }());
 var Renderer = /** @class */ (function () {
-    function Renderer(textureImgs) {
+    function Renderer(images) {
+        this.images = images;
+        // TODO: CanvasPatterns only for textures -- sprites do not need a CanvasPattern
         this.textures = Object.create(null);
         var canvas = this.canvas = document.createElement('canvas');
         var ctx = this.ctx = canvas.getContext('2d');
@@ -220,9 +222,9 @@ var Renderer = /** @class */ (function () {
         ctx.lineWidth = 1;
         var lc = this.lightCanvas = document.createElement('canvas');
         this.lightCtx = lc.getContext('2d');
-        for (var k in textureImgs) {
+        for (var k in images) {
             var kk = k;
-            this.textures[kk] = ctx.createPattern(textureImgs[kk], 'repeat');
+            this.textures[kk] = ctx.createPattern(images[kk], 'repeat');
         }
         var body = document.getElementsByTagName('body')[0];
         body.appendChild(canvas);
@@ -234,6 +236,7 @@ var Renderer = /** @class */ (function () {
         this.canvas.height = this.lightCanvas.height = height;
     };
     Renderer.prototype.draw = function (scene, camera, figures, dynamicLights) {
+        var _this = this;
         var ctx = this.ctx;
         var lightCtx = this.lightCtx;
         var width = this.canvas.width;
@@ -257,11 +260,16 @@ var Renderer = /** @class */ (function () {
             }
         }
         // Draw figures
-        figures.forEach(function (figure) { return figure.drawOn(ctx); });
+        figures.forEach(function (figure) { return _this.drawFigure(figure); });
         // Draw all??
         ctx.globalCompositeOperation = 'multiply';
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(this.lightCanvas, 0, 0);
+    };
+    Renderer.prototype.drawFigure = function (figure) {
+        var spriteWidth = 40, spriteHeight = 64, pixelsLeft = 0, pixelsTop = 0;
+        var img = this.images[figure.getTextureName()];
+        this.ctx.drawImage(img, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, figure.getX(), figure.getY(), spriteWidth, spriteHeight);
     };
     Renderer.prototype.drawPolygon = function (polygon, camera) {
         var ctx = this.ctx;
@@ -285,7 +293,7 @@ var Renderer = /** @class */ (function () {
 var TEXTURES = {
     'wall': 'textures/wall-bricks.jpg',
     'floor': 'textures/floor-tiles.jpg',
-    'stick_figure': 'textures/figure.jpg'
+    'stick_figure': 'textures/figure.jpg',
 };
 var TEXTURE_SCALE = 0.005;
 var UVTransform = /** @class */ (function () {
@@ -305,7 +313,6 @@ var UVTransform = /** @class */ (function () {
     };
     return UVTransform;
 }());
-;
 function loadTextures(callback) {
     var imgs = Object.create(null);
     var count = 0;
@@ -413,17 +420,20 @@ var PointLight = /** @class */ (function () {
     return PointLight;
 }());
 var Figure = /** @class */ (function () {
-    function Figure(canvasPosX, canvasPosY, canvasPosZ) {
+    function Figure(canvasPosX, canvasPosY, canvasPosZ, textureName) {
         this.canvasPosX = canvasPosX;
         this.canvasPosY = canvasPosY;
         this.canvasPosZ = canvasPosZ;
-        this.texture = "stick_figure";
+        this.textureName = textureName;
     }
-    Figure.prototype.drawOn = function (ctx) {
-        var spriteWidth = 40, spriteHeight = 64, pixelsLeft = 0, pixelsTop = 0;
-        var playerImg = new Image();
-        playerImg.src = TEXTURES[this.texture];
-        ctx.drawImage(playerImg, pixelsLeft, pixelsTop, spriteWidth, spriteHeight, this.canvasPosX, this.canvasPosY, spriteWidth, spriteHeight);
+    Figure.prototype.getTextureName = function () {
+        return this.textureName;
+    };
+    Figure.prototype.getX = function () {
+        return this.canvasPosX;
+    };
+    Figure.prototype.getY = function () {
+        return this.canvasPosY;
     };
     return Figure;
 }());
@@ -466,8 +476,8 @@ var SCENE_DATA = {
  */
 var FIGURES_DATA = {
     figures: [
-        new Figure(250, 0, 0),
-        new Figure(350, 0, 0)
+        new Figure(250, 0, 0, "stick_figure"),
+        new Figure(350, 0, 0, "stick_figure")
     ]
 };
 function main() {
@@ -490,7 +500,7 @@ function main() {
         var game = new Game(scene);
         var renderer = new Renderer(imgs);
         // TODO: camera follows player
-        game.camera.translate(500, -200);
+        game.camera.translate(500, 0);
         function resizeCanvas() {
             var w = window.innerWidth, h = window.innerHeight;
             game.camera.resizeWindow(w, h);
