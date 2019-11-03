@@ -1,3 +1,5 @@
+const CAMERA_SCALE = 64;
+
 class Renderer {
     // TODO: CanvasPatterns only for textures -- sprites do not need a CanvasPattern
     private readonly textures: { [k in ImageName]: CanvasPattern } = Object.create(null);
@@ -66,22 +68,28 @@ class Renderer {
         }
 
         // Draw player
-        this.drawSprite(game.player, camera);
+		this.drawSprite(ctx, game.player, camera);
+		this.lightSprite(game.player, camera);
 		
         // apply lighting
         ctx.globalCompositeOperation = 'multiply';
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.drawImage(this.lightCanvas, 0, 0);
+		ctx.drawImage(this.lightCanvas, 0, 0);
+		
+		this.drawLights(s3.staticLights, camera);
+		if(dynamicLights) {
+			this.drawLights(s3.dynamicLights, camera);
+		}
     }
 
-    private drawSprite(sprite: Sprite, camera: Camera) {
+    private drawSprite(ctx: CanvasRenderingContext2D, sprite: Sprite, camera: Camera) {
         const img = this.images[sprite.sprite];
         const sw = img.width, sh = img.height;
 		const dw = sw * camera.scale * SPRITE_SCALE, dh = sh * camera.scale * SPRITE_SCALE;
 		
 		const pos2d = sprite.pos.project2d();
 		
-        this.ctx.drawImage(
+        ctx.drawImage(
             img, 0, 0,
             sw, sh,
 			// drawImage draws an image, with the given x/y coordinates being the top-left corner
@@ -89,8 +97,14 @@ class Renderer {
 			pos2d.x - dw/2, pos2d.y - dh,
             dw, dh
         );
-    }
-
+	}
+	
+	private lightSprite(sprite: Sprite, camera: Camera) {
+		this.lightCtx.globalCompositeOperation = 'destination-out';
+		this.drawSprite(this.lightCtx, sprite, camera);
+		
+		// TODO: apply light to the mask
+	}
 
     private drawPolygon(polygon: Polygon2, camera: Camera): void {
         const ctx = this.ctx;
@@ -111,5 +125,11 @@ class Renderer {
         for (let i = 0; i < lights.length; ++i) {
             lights[i].drawForPolygon(lightCtx, camera, polygon);
         }
-    }
+	}
+	
+	private drawLights(lights: ReadonlyArray<Light>, camera: Camera): void {
+		for(let i = 0; i < lights.length; ++i) {
+			lights[i].drawForCamera(this.ctx, camera);
+		}
+	}
 }

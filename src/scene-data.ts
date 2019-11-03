@@ -49,7 +49,7 @@ const SCENE_DATA = (function (): SceneData {
 
         lights: [
             new AmbientLight(Color.greyscale(30)),
-            new DirectionalLight(new Vector3(3, -1, 5), Color.rgb(50, 60, 40)),
+            new DirectionalLight(v(3, -1, 5), Color.rgb(20, 25, 15)),
         ],
 
         playerStartPos: v(5, 2, 0),
