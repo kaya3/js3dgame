@@ -1,4 +1,4 @@
-const CAMERA_SPEED = 0.25;
+const CAMERA_SPEED = 0.4;
 const CAMERA_ZOOM_SPEED = 0.001;
 const MAX_ZOOM = 10;
 const MIN_ZOOM = 0.5;

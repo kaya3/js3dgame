@@ -29,7 +29,7 @@ var Util = /** @class */ (function () {
     };
     return Util;
 }());
-var CAMERA_SPEED = 0.25;
+var CAMERA_SPEED = 0.4;
 var CAMERA_ZOOM_SPEED = 0.001;
 var MAX_ZOOM = 10;
 var MIN_ZOOM = 0.5;
@@ -52,7 +52,7 @@ var Game = /** @class */ (function () {
     };
     return Game;
 }());
-var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 20;
+var sqrt2 = Math.sqrt(2), sqrt3 = Math.sqrt(3), sqrt6 = Math.sqrt(6), CAMERA_SCALE = 50;
 var Vector3 = /** @class */ (function () {
     function Vector3(x, y, z) {
         this.x = x;
@@ -426,16 +426,16 @@ var Figure = /** @class */ (function () {
 var SCENE_DATA = {
     "faces": [
         // Room 1
-        // { label: "C", texture: "floor", coords: [{x:0, y:0, z:0}, {x:6, y:0, z:0}, {x:6, y:10, z:0}, {x:0, y:10, z:0}]},
+        { label: "C", texture: "floor", coords: [{ x: 0, y: 0, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 10, z: 0 }, { x: 0, y: 10, z: 0 }] },
         { label: "A", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 6, y: 0, z: 1 }, { x: 6, y: 0, z: 0 }] },
         { label: "B", texture: "wall", coords: [{ x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }, { x: 6, y: 0, z: 0 }, { x: 6, y: 0, z: 1 },] },
         { label: "D", texture: "wall", coords: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: 10, z: 1 }, { x: 0, y: 10, z: 0 }] },
         { label: "E", texture: "wall", coords: [{ x: 0, y: 10, z: 0 }, { x: 0, y: 10, z: 1 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 10, z: 0 }] },
         { label: "F", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 6, y: 10, z: 1 }, { x: 6, y: 10, z: 0 }] },
         // Corridor
-        // { label: "O", texture: "floor", coords: [{x:2, y:10, z:0}, {x:4, y:10, z:0},{x:4, y:15, z:1},{x:2, y:15, z:1}]},
+        { label: "O", texture: "floor", coords: [{ x: 2, y: 10, z: 0 }, { x: 4, y: 10, z: 0 }, { x: 4, y: 15, z: 1 }, { x: 2, y: 15, z: 1 }] },
         { label: "G", texture: "wall", coords: [{ x: 4, y: 10, z: 0 }, { x: 4, y: 10, z: 1 }, { x: 4, y: 15, z: 2 }, { x: 4, y: 15, z: 1 }] },
-        { label: "H", texture: "wall", coords: [{ x: 2, y: 10, z: 0 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 15, z: 2 }, { x: 2, y: 15, z: 1 }] },
+        { label: "H", texture: "wall", coords: [{ x: 2, y: 10, z: 0 }, { x: 2, y: 10, z: 1 }, { x: 2, y: 15, z: 2 }, { x: 2, y: 15, z: 0 }] },
         // Room 2
         { label: "N", texture: "floor", coords: [{ x: -4, y: 15, z: 1 }, { x: 6, y: 15, z: 1 }, { x: 6, y: 23, z: 1 }, { x: -4, y: 23, z: 1 }] },
         // { label: "N", texture: "floor", coords: [{x:-4, y:15, z:1}, {x:2, y:15, z:1}, {x:2, y:15, z:1}, {x:6, y:15, z:1}, {x:6, y:23, z:1}, {x:-4, y:23, z:1}]},
@@ -450,6 +450,7 @@ var SCENE_DATA = {
     lights: [
         new AmbientLight(new RGB(50, 50, 50)),
         new DirectionalLight(new Vector3(3, -1, 5), new RGB(50, 60, 40)),
+        new PointLight(new Vector3(5, 2, 0.5), new RGB(0, 255, 0), 1, 'static'),
     ]
 };
 var FIGURES_DATA = {
