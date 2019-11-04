@@ -49,17 +49,17 @@ const SCENE_DATA = (function (): SceneData {
             { label: "I (anti-clockwise NW-facing wall)", isWalkable: false, texture: "wall", coords: [v(2, 15, Z_GROUND), v(2, 15, Z_PLAT2), v(-4, 15, Z_PLAT2), v(-4, 15, Z_GROUND)] },
             { label: "M (anti-clockwise NW-facing wall)", isWalkable: false, texture: "wall", coords: [v(6, 15, Z_GROUND), v(6, 15, Z_PLAT2), v(4, 15, Z_PLAT2), v(4, 15, Z_GROUND)] },
             { label: "K", isWalkable: false, texture: "wall", coords: [v(-4, 23, Z_GROUND), v(-4, 23, Z_PLAT2), v(6, 23, Z_PLAT2), v(6, 23, Z_GROUND)] },
-            { label: "L (anti-clockwise NE-facing wall)", isWalkable: false, texture: "wall", coords: [v(6, 23, Z_GROUND), v(6, 23, Z_PLAT2), v(6, 15, Z_PLAT2), v(6, 15, Z_GROUND)]},
-            { isWalkable: false, texture: "wall", coords: [v(-4, 15, Z_PLAT3), v(-4, 15, Z_PLAT2), v(-4, 18, Z_PLAT2), v(-4, 18, Z_PLAT3), ] },
-            { isWalkable: false, texture: "wall", coords: [v(-4, 20, Z_PLAT3), v(-4, 20, Z_PLAT2), v(-4, 23, Z_PLAT2), v(-4, 23, Z_PLAT3), ] },
+            { label: "L (anti-clockwise NE-facing wall)", isWalkable: false, texture: "wall", coords: [v(6, 23, Z_GROUND), v(6, 23, Z_PLAT2), v(6, 15, Z_PLAT2), v(6, 15, Z_GROUND)] },
+            { isWalkable: false, texture: "wall", coords: [v(-4, 15, Z_PLAT3), v(-4, 15, Z_PLAT2), v(-4, 18, Z_PLAT2), v(-4, 18, Z_PLAT3)] },
+            { isWalkable: false, texture: "wall", coords: [v(-4, 20, Z_PLAT3), v(-4, 20, Z_PLAT2), v(-4, 23, Z_PLAT2), v(-4, 23, Z_PLAT3)] },
 			
 			// RAMP
             { isWalkable: true, texture: "floor", coords: [v(-4, 18, Z_PLAT3), v(-1, 18, Z_PLAT2), v(-1, 20, Z_PLAT2), v(-4, 20, Z_PLAT3)] },
-            { isWalkable: false, texture: "wall", coords: [v(-4, 18, Z_PLAT3), v(-4, 18, Z_PLAT2), v(-1, 18, Z_PLAT2), ] },
-			{ isWalkable: false, texture: "wall", coords: [v(-4, 20, Z_PLAT3), v(-1, 20, Z_PLAT2), v(-4, 20, Z_PLAT2), ] },
+            { isWalkable: false, texture: "wall", coords: [v(-4, 18, Z_PLAT3), v(-4, 18, Z_PLAT2), v(-1, 18, Z_PLAT2)] },
+			{ isWalkable: false, texture: "wall", coords: [v(-4, 20, Z_PLAT3), v(-1, 20, Z_PLAT2), v(-4, 20, Z_PLAT2)] },
 			
 			// Room 3
-            { isWalkable: true, texture: "floor", coords: [v(-4, 15, Z_PLAT3), v(-4, 23, Z_PLAT3), v(-12, 23, Z_PLAT3), v(-12, 15, Z_PLAT3),] },
+            { isWalkable: true, texture: "floor", coords: [v(-4, 15, Z_PLAT3), v(-4, 23, Z_PLAT3), v(-12, 23, Z_PLAT3), v(-12, 15, Z_PLAT3)] }
         ],
 
         lights: [
