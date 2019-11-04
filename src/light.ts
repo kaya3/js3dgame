@@ -9,7 +9,7 @@ class Color {
         return new Color(r, g, b);
     }
 
-    public toString(alpha = 1): string {
+    public toString(alpha: number = 1): string {
         let r = this.r, g = this.g, b = this.b;
         alpha = Math.min(alpha, 1);
         return ['rgba(', r, ',', g, ',', b, ',', alpha, ')'].join('');
@@ -63,28 +63,28 @@ class DirectionalLight implements Light {
 
 class PointLight implements Light {
     private intensity: number;
-    private flickerJitterMagnitude: number;
+    private flickerJitterPercentage: number;
 
     public constructor(
         public pos: Vector3,
         public color: Color,
-        public maximumIntensity: number,
+        public initialIntensity: number,
         public status: 'off' | 'flickering' | 'maximum',
         public readonly kind: 'static' | 'dynamic'
     ) {
-        this.intensity = maximumIntensity;
-        this.flickerJitterMagnitude = 2 / 10;
+        this.intensity = Math.max(initialIntensity, 0);
+        this.flickerJitterPercentage = 4 / 10;
     }
 
     public updateIntensity(dt: number) {
         if (this.status === 'off') {
             this.intensity = 0;
         } else if (this.status === 'maximum') {
-            this.intensity = this.maximumIntensity;
+            this.intensity = this.initialIntensity;
         } else if (this.status === 'flickering') {
-            const delta = (Math.random() - 0.5) * dt / 64;
-            const newIntensity = this.intensity + delta;
-            this.intensity = Util.jitter(newIntensity, this.maximumIntensity * this.flickerJitterMagnitude);
+            const d = this.initialIntensity * this.flickerJitterPercentage;
+            this.intensity = Util.jitter(this.intensity, d);
+            this.intensity = Util.limitNumberRange(this.intensity, this.initialIntensity - d, this.initialIntensity + d);
         }
     }
 

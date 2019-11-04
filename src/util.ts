@@ -1,6 +1,7 @@
 class Util {
     public static jitter(val: number, d: number) {
-        return Util.limitNumberRange(val, val - d, val + d);
+        const delta = (Math.random() - 0.5) * d;
+        return val + delta
     }
 
     public static limitNumberRange(val: number, min: number, max: number) {
