@@ -30,25 +30,19 @@ const ZOOM_DOWN = KEYCODE_PAGE_DOWN;
 
 
 class Game {
-    public static CAMERA_SPEED = 0.4;
+    public static CAMERA_SPEED = 1/2.5;
     public static CAMERA_ZOOM_SPEED = 1/1000;
     public static MAX_ZOOM = 4;
     public static MIN_ZOOM = 1/4;
     public static PLAYER_SPEED = 1/500;
-    public static NPC_SPEED = 0.08;
+    public static NPC_SPEED = 1/12;
 
     public readonly camera: Camera;
     public readonly player: Player;
-    public playerLight: PointLight | null;
+    public playerLight: PointLight;
     public readonly npcs: NPC[];
     public readonly npc: NPC;
 	public readonly item: Item;
-
-	private extinguishLight ( scene: Scene2) {
-	    console.info("light extinguished");
-	    this.playerLight = null;
-	    scene.as3d.dynamicLights = new Array<Light>();
-    }
 
     public constructor(public scene: Scene2) {
         this.player = new Player(Vector3.ZERO, scene.as3d.data.playerSprite);
@@ -62,16 +56,15 @@ class Game {
             camera.moveTo(pos2d.x, pos2d.y);
 		});
 		
-        const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'dynamic');
+        const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'off','dynamic');
         this.scene.as3d.addDynamicLight(light);
         const cameraOffset = new Vector3(0.105, 0.105, 0.452);
         this.player.onMove(p => light.pos = p.add(cameraOffset));
         this.player.setPos(scene.as3d.data.playerStartPos);
 
-        setTimeout(function() {
-            console.info("light extinguished");
-            scene.as3d.dynamicLights = new Array<Light>();
-            }, 4000);
+        // setTimeout(((light: PointLight) => () => { light.status = 'off'; })(this.playerLight), 2000);
+        // setTimeout(((light: PointLight) => () => { light.status = 'maximum'; })(this.playerLight), 4000);
+        // setTimeout(((light: PointLight) => () => { light.status = 'flickering'; })(this.playerLight), 6000);
 
 
         this.npcs = [];
@@ -89,8 +82,7 @@ class Game {
         this.handleKeyPresses(dt, keys);
         this.moveNpcs();
 
-        const newIntensity = this.playerLight.intensity + (Math.random() - 0.5)*dt/64;
-        this.playerLight.intensity = Util.limitNumberRange(newIntensity, 0.8, 1.2);
+        this.playerLight.updateIntensity(dt);
     }
 
     private moveNpcs() {
@@ -111,6 +103,8 @@ class Game {
             (keys[PLAYER_RIGHT] - keys[PLAYER_LEFT] - keys[PLAYER_DOWN] + keys[PLAYER_UP]) * dxy,
             (keys[PLAYER_RIGHT] - keys[PLAYER_LEFT] + keys[PLAYER_DOWN] - keys[PLAYER_UP]) * dxy
         );
+
+
     }
 
     private moveSpriteWithinBounds(sprite : Sprite, dx: number, dy: number) : boolean {

@@ -58,12 +58,31 @@ class DirectionalLight implements Light {
 }
 
 class PointLight implements Light {
+    private intensity: number;
+    private flickerJitterMagnitude: number;
+
     public constructor(
         public pos: Vector3,
         public color: Color,
-        public intensity: number,
+        public maximumIntensity: number,
+        public status: 'off' | 'flickering' | 'maximum',
         public readonly kind: 'static' | 'dynamic'
-    ) {}
+    ) {
+        this.intensity = maximumIntensity;
+        this.flickerJitterMagnitude = 2/10;
+    }
+
+    public updateIntensity(dt: number) {
+        if(this.status === 'off') {
+            this.intensity = 0;
+        } else if(this.status === 'maximum') {
+            this.intensity = this.maximumIntensity;
+        } else if(this.status === 'flickering') {
+            const delta = (Math.random() - 0.5)*dt/64;
+            const newIntensity = this.intensity + delta;
+            this.intensity = Util.jitter(newIntensity, this.maximumIntensity * this.flickerJitterMagnitude);
+        }
+    }
 
     public drawForPolygon(ctx: CanvasRenderingContext2D, camera: Camera, polygon: Polygon2): void {
         const MAX_D = 10;

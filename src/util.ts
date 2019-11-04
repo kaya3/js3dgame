@@ -1,4 +1,8 @@
 class Util {
+    public static jitter(val: number, d: number) {
+        return Util.limitNumberRange(val, val-d, val+d);
+    }
+
     public static limitNumberRange(val: number, min: number, max: number) {
         return Math.min(max, Math.max(min, val));
     }

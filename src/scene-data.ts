@@ -63,8 +63,8 @@ const SCENE_DATA = (function (): SceneData {
         ],
 
         lights: [
-            new AmbientLight(Color.greyscale(10)),
-            new DirectionalLight(new Vector3(3, -1, 5), Color.rgb(50, 60, 40)),
+            new AmbientLight(Color.greyscale(10)), // Ambient lighting for the full scene
+            new DirectionalLight(new Vector3(3, -1, 5), Color.rgb(50, 60, 40)), // Light up the player character
         ],
 
         playerStartPos: v(5, 2, 0),
