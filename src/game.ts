@@ -56,7 +56,7 @@ class Game {
             camera.moveTo(pos2d.x, pos2d.y);
         });
 
-        const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'off', 'dynamic');
+        const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'flickering', 'dynamic');
         this.scene.as3d.addDynamicLight(light);
         const cameraOffset = new Vector3(0.105, 0.105, 0.452);
         this.player.onMove(p => light.pos = p.add(cameraOffset));
