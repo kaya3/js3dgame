@@ -1,6 +1,6 @@
 class Util {
     public static jitter(val: number, d: number) {
-        return Util.limitNumberRange(val, val-d, val+d);
+        return Util.limitNumberRange(val, val - d, val + d);
     }
 
     public static limitNumberRange(val: number, min: number, max: number) {
@@ -19,7 +19,7 @@ class Util {
         return ((startY > pointY) != (endY > pointY)) && (pointX < (endX - startX) * (pointY - startY) / (endY - startY) + startX);
     }
 
-    public static isPointInPolygon<T extends Vector2|Vector3>(vertices: ReadonlyArray<T>, point: T) {
+    public static isPointInPolygon<T extends Vector2 | Vector3>(vertices: ReadonlyArray<T>, point: T) {
         let isInside = false;
         // Draw a line from the given xy coordinate toward the direction of each point in the polygon
         // An odd number of intersections indicates that the given point is NOT inside the polygon

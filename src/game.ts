@@ -30,19 +30,19 @@ const ZOOM_DOWN = KEYCODE_PAGE_DOWN;
 
 
 class Game {
-    public static CAMERA_SPEED = 1/2.5;
-    public static CAMERA_ZOOM_SPEED = 1/1000;
+    public static CAMERA_SPEED = 1 / 2.5;
+    public static CAMERA_ZOOM_SPEED = 1 / 1000;
     public static MAX_ZOOM = 4;
-    public static MIN_ZOOM = 1/4;
-    public static PLAYER_SPEED = 1/500;
-    public static NPC_SPEED = 1/12;
+    public static MIN_ZOOM = 1 / 4;
+    public static PLAYER_SPEED = 1 / 500;
+    public static NPC_SPEED = 1 / 12;
 
     public readonly camera: Camera;
     public readonly player: Player;
     public playerLight: PointLight;
     public readonly npcs: NPC[];
     public readonly npc: NPC;
-	public readonly item: Item;
+    public readonly item: Item;
 
     public constructor(public scene: Scene2) {
         this.player = new Player(Vector3.ZERO, scene.as3d.data.playerSprite);
@@ -52,11 +52,11 @@ class Game {
 
         const camera = this.camera = new Camera();
         this.player.onMove(p => {
-			const pos2d = p.project2d();
+            const pos2d = p.project2d();
             camera.moveTo(pos2d.x, pos2d.y);
-		});
-		
-        const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'off','dynamic');
+        });
+
+        const light = this.playerLight = new PointLight(Vector3.ZERO, Color.rgb(255, 255, 200), 1, 'off', 'dynamic');
         this.scene.as3d.addDynamicLight(light);
         const cameraOffset = new Vector3(0.105, 0.105, 0.452);
         this.player.onMove(p => light.pos = p.add(cameraOffset));
@@ -68,7 +68,7 @@ class Game {
 
 
         this.npcs = [];
-        for(let i=0; i<scene.as3d.data.numGeese; i++) {
+        for (let i = 0; i < scene.as3d.data.numGeese; i++) {
             this.npcs[i] = new NPC(scene.as3d.data.playerStartPos, scene.as3d.data.npcSprite);
         }
     }
@@ -87,7 +87,7 @@ class Game {
 
     private moveNpcs() {
         this.npcs.forEach(npc => {
-            if(!this.moveSpriteWithinBounds(npc, npc.dx, npc.dy)) {
+            if (!this.moveSpriteWithinBounds(npc, npc.dx, npc.dy)) {
                 npc.updateDirection();
             }
         });
@@ -96,7 +96,7 @@ class Game {
     private handleKeyPresses(dt: number, keys: { [k: number]: number }) {
         const dz = Game.CAMERA_ZOOM_SPEED * (keys[ZOOM_IN] - keys[ZOOM_DOWN]) * dt;
         this.camera.scale = Util.limitNumberRange(this.camera.scale * (1 + dz), Game.MIN_ZOOM, Game.MAX_ZOOM);
-		
+
         const dxy = Game.PLAYER_SPEED * dt;
         this.moveSpriteWithinBounds(
             this.player,
@@ -107,7 +107,7 @@ class Game {
 
     }
 
-    private moveSpriteWithinBounds(sprite : Sprite, dx: number, dy: number) : boolean {
+    private moveSpriteWithinBounds(sprite: Sprite, dx: number, dy: number): boolean {
         const x = sprite.pos.x + dx;
         const y = sprite.pos.y + dy;
 
@@ -116,9 +116,9 @@ class Game {
 
         const oldZ = sprite.pos.z;
         let closestZ = floors[0].projectZ(x, y);
-        for(let i = 1; i < floors.length; ++i) {
+        for (let i = 1; i < floors.length; ++i) {
             let newZ = floors[i].projectZ(x, y);
-            if(Math.abs(newZ - oldZ) < Math.abs(closestZ - oldZ)) {
+            if (Math.abs(newZ - oldZ) < Math.abs(closestZ - oldZ)) {
                 closestZ = newZ;
             }
         }

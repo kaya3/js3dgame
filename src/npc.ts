@@ -10,10 +10,6 @@ class NPC extends Sprite {
         this.updateDirection();
     }
 
-    private randomSpeed(): number {
-        return ((Math.random() * Game.NPC_SPEED) * 2) + Game.NPC_SPEED;
-    }
-
     public updateDirection() {
         this.dx = this.randomSpeed();
         this.dy = this.randomSpeed();
@@ -34,5 +30,9 @@ class NPC extends Sprite {
         } else {
             this.dy = this.dy * -1;
         }
+    }
+
+    private randomSpeed(): number {
+        return ((Math.random() * Game.NPC_SPEED) * 2) + Game.NPC_SPEED;
     }
 }

@@ -93,8 +93,8 @@ class Polygon3 {
     public readonly normal: Vector3;
     public readonly u: Vector3;
     public readonly v: Vector3;
-	public readonly cameraOrder: number;
-	private readonly xyBoundingBox: BoundingBox2;
+    public readonly cameraOrder: number;
+    private readonly xyBoundingBox: BoundingBox2;
 
     public constructor(public readonly points: ReadonlyArray<Vector3>, public readonly texture: ImageName, public readonly isWalkable: boolean) {
         const n = this.normal = points[1].subtract(points[0]).cross(points[2].subtract(points[1])).unit();
@@ -106,9 +106,8 @@ class Polygon3 {
         for (let i = 1; i < points.length; ++i) {
             m = Math.min(points[i].cameraOrder(), m);
         }
-		this.cameraOrder = -m;
-		
-		this.xyBoundingBox = new BoundingBox2(points);
+        this.cameraOrder = -m;
+        this.xyBoundingBox = new BoundingBox2(points);
     }
 
     public project2d(): Polygon2 {
@@ -124,18 +123,18 @@ class Polygon3 {
     }
 
     public contains(point: Vector3): boolean {
-		return this.xyBoundingBox.contains(point)
-			&& Util.isPointInPolygon(this.points, point);
+        return this.xyBoundingBox.contains(point)
+            && Util.isPointInPolygon(this.points, point);
     }
 }
 
 class Polygon2 {
-	public readonly boundingBox: BoundingBox2;
-	public readonly uvTransform: UVTransform;
+    public readonly boundingBox: BoundingBox2;
+    public readonly uvTransform: UVTransform;
 
     public constructor(public readonly points: ReadonlyArray<Vector2>, public readonly as3d: Polygon3) {
-		this.boundingBox = new BoundingBox2(points);
-		
+        this.boundingBox = new BoundingBox2(points);
+
         const u = as3d.u.project2d();
         const v = as3d.v.project2d();
         const p = points[0];
@@ -143,7 +142,7 @@ class Polygon2 {
             u.x, u.y,
             v.x, v.y,
             p.x, p.y
-		);
+        );
     }
 
     public drawPath(ctx: CanvasRenderingContext2D): void {
@@ -159,34 +158,35 @@ class Polygon2 {
     }
 
     public contains(point: Vector2): boolean {
-		return this.boundingBox.contains(point)
-			&& Util.isPointInPolygon(this.points, point);
+        return this.boundingBox.contains(point)
+            && Util.isPointInPolygon(this.points, point);
     }
 }
 
 class BoundingBox2 {
-	public readonly left: number;
-	public readonly top: number;
-	public readonly right: number;
-	public readonly bottom: number;
-	constructor(points: ReadonlyArray<Vector2|Vector3>) {
-		let p = points[0];
-		let left = p.x, top = p.y, right = p.x, bottom = p.y;
-		for(let i = 1; i < points.length; ++i) {
-			p = points[i];
-			left = Math.min(left, p.x);
-			top = Math.min(left, p.y);
-			right = Math.max(left, p.x);
-			bottom = Math.max(left, p.y);
-		}
-		this.left = left;
-		this.top = top;
-		this.right = right;
-		this.bottom = bottom;
-	}
-	
-	public contains(point: Vector2|Vector3): boolean {
-		return this.left <= point.x && point.x <= this.right
-			&& this.top <= point.y && point.y <= this.bottom;
-	}
+    public readonly left: number;
+    public readonly top: number;
+    public readonly right: number;
+    public readonly bottom: number;
+
+    constructor(points: ReadonlyArray<Vector2 | Vector3>) {
+        let p = points[0];
+        let left = p.x, top = p.y, right = p.x, bottom = p.y;
+        for (let i = 1; i < points.length; ++i) {
+            p = points[i];
+            left = Math.min(left, p.x);
+            top = Math.min(left, p.y);
+            right = Math.max(left, p.x);
+            bottom = Math.max(left, p.y);
+        }
+        this.left = left;
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+    }
+
+    public contains(point: Vector2 | Vector3): boolean {
+        return this.left <= point.x && point.x <= this.right
+            && this.top <= point.y && point.y <= this.bottom;
+    }
 }

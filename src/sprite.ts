@@ -8,7 +8,7 @@ class Sprite {
     public setPos(pos: Vector3): void {
         this.pos = pos;
         let callbacks = this.onMoveCallbacks;
-        for(let i = 0; i < callbacks.length; ++i) {
+        for (let i = 0; i < callbacks.length; ++i) {
             callbacks[i](pos);
         }
     }

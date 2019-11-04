@@ -3,7 +3,7 @@ function main(sceneData: SceneData) {
     const scene: Scene2 = new Scene3(sceneData).project2d();
 
     const keys: { [k: number]: number } = Object.create(null);
-    for(let i = 0; i < 256; ++i) { keys[i] = 0; }
+    for (let i = 0; i < 256; ++i) { keys[i] = 0; }
     window.addEventListener('keydown', function (e) {
         keys[e.keyCode] = 1;
     });
@@ -28,6 +28,7 @@ function main(sceneData: SceneData) {
         resizeCanvas();
 
         let lastTime: DOMHighResTimeStamp | undefined;
+
         function tick(time?: DOMHighResTimeStamp) {
             if (time && lastTime) {
                 game.tick(time - lastTime, keys);

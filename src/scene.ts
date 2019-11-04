@@ -20,7 +20,7 @@ class Scene3 {
     }
 
     public addDynamicLight(light: Light): void {
-        if(light.kind !== 'dynamic') {
+        if (light.kind !== 'dynamic') {
             throw new Error('Cannot add ' + light.kind + ' light dynamically');
         }
         this.dynamicLights.push(light);
